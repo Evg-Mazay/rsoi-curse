@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$( document ).ready(function(){
+  $( "#button1id" ).click(function(){sign_in(log_input.value, pass_input.value)});
+  $( "#button2id" ).click(function(){});
+});
+</script>
+
+{% for car in car_list %}
+<div class="card" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">{{ car.brand }} - {{ car.model }}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">{{ car.type }}</h6>
+    <p class="card-text">Мощность двигателя: {{ car.power }}</p>
+    <a href="/cars/{{ car.uuid }}" class="card-link">Подробнее</a>
+<!--    <a href="#" class="card-link">Another link</a>-->
+  </div>
+</div>
+{% endfor %}
+
+
+
+{% endblock %}

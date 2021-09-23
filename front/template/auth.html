@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block username_place %}
+{% endblock %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$( document ).ready(function(){
+  $( "#button1id" ).click(function(){sign_in(log_input.value, pass_input.value)});
+  $( "#button2id" ).click(function(){});
+});
+</script>
+
+<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+        <fieldset>
+
+        <!-- Text input-->
+        <div class="form-group">
+          <label class="col-md-4 control-label" for="log_input">Логин</label>
+          <div class="col-md-4">
+          <input id="log_input" name="Text Input" type="text" placeholder="Логин" class="form-control input-md" required="">
+
+          </div>
+        </div>
+
+        <!-- Password input-->
+        <div class="form-group">
+          <label class="col-md-4 control-label" for="pass_input">Пароль</label>
+          <div class="col-md-4">
+            <input id="pass_input" name="passwordinput" type="password" placeholder="Пароль" class="form-control input-md" required="">
+
+          </div>
+        </div>
+
+        <!-- Button (Double) -->
+        <div class="form-group">
+          <label class="col-md-4 control-label" for="button1id"></label>
+          <div class="col-md-8">
+            <button id="button1id" name="button1id" class="btn btn-success">
+              Войти
+            </button>
+            <button id="button2id" name="button2id" class="btn btn-warning">
+              Зарегистрироваться
+            </button>
+          </div>
+        </div>
+
+        </fieldset>
+    </div>
+
+{% endblock %}

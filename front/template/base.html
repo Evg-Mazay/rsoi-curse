@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
+
+    <title>Вход/регистрация</title>
+
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+<!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>-->
+
+
+    <!--  jquery   -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+
+
+    <script>{% include 'requests.js' %}</script>
+
+    <script type="text/javascript">
+    $( document ).ready(function(){
+      $( "#exit_id" ).click(sign_out);
+    });
+    </script>
+
+  </head>
+
+  <body>
+
+
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+      <h5 class="my-0 mr-md-auto font-weight-normal">Zакаz Машин   </h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="/cars">Машины</a>
+        <a class="p-2 text-dark" href="#">Офисы</a>
+      </nav>
+        <div class="p-3 align-items-right">
+          {% block username_place %}
+          {% if username %}
+          <a>Вы авторизованы как: <b>{{ username }}</b></a>
+          <button id="exit_id" type="button" class="btn btn-dark">Выйти</button>
+          {% else %}
+            <a class="btn btn-outline-primary" href="/auth">Вход/регистрация</a>
+          {% endif %}
+          {% endblock %}
+        </div>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+
+
+<!--    footer       -->
+
+    <div class="container">
+      <footer class="pt-4 my-md-5 pt-md-5 border-top">
+        <div class="row">
+          <div class="col-12 col-md">
+            <small class="d-block mb-3 text-muted">&copy; Евгений Мазайшвили 2021</small>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

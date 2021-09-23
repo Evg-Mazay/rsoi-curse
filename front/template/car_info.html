@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$( document ).ready(function(){
+  $( "#purchase_id" ).click(function(){
+    document.location.href = "/book" +
+    "?office_id=" + {{ car_info.last_available.office_id }} +
+    "&car_uuid=" + document.location.pathname.split("/")[2]
+  });
+});
+</script>
+
+<h5>
+  {{ car_info.car }}
+</h5>
+
+
+<h4>
+  Доступность:
+</h4>
+
+<ul class="list-group">
+  <li class="list-group-item active">
+    Офис {{ car_info.last_available.office_id }}:
+    доступна с {{ car_info.last_available.from }}
+    <button id="purchase_id" type="button" class="btn btn-warning">Заказать</button>
+  </li>
+{% for car in car_info.offices %}
+  <li class="list-group-item disabled">
+    Офис {{ car.office_id }}:
+    была доступна с {{ car.from }} до {{ car.to }}
+  </li>
+{% endfor %}
+</ul>
+
+
+
+
+{% endblock %}

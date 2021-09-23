@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<!--datepicker-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js">
+</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+      rel="stylesheet">
+
+<script type="text/javascript">
+$( document ).ready(function(){
+  $( "#make_order_id" ).click(function(){make_book(
+    start_office_id.value,
+    return_office_id.value,
+    car_id.value,
+    from_id.value,
+    to_id.value,
+    cc_id.value,
+    sum_id.value,
+  )});
+  $('.input-daterange').datepicker({});
+});
+</script>
+
+<h4>
+  Оформление заказа
+</h4>
+
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="start_office_id">Офис старта</label>
+  </div>
+  <select class="custom-select" id="start_office_id">
+    <option selected value="{{ params_info.office_id }}">{{ params_info.office_id }}</option>
+  </select>
+</div>
+
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="return_office_id">Офис возврата</label>
+  </div>
+  <input type="text" class="form-control" id="return_office_id">
+
+
+  <div class="input-daterange input-group" id="datepicker">
+    <input type="text" class="input-sm form-control" name="start" />
+    <span class="input-group-addon">to</span>
+    <input type="text" class="input-sm form-control" name="end" />
+  </div>
+
+</div>
+
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="car_id">Машина</label>
+  </div>
+  <select class="custom-select" id="car_id">
+    <option selected value="{{ params_info.car_uuid }}">{{ params_info.car_uuid }}</option>
+  </select>
+</div>
+
+
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="from_id">Период</label>
+  </div>
+  <input type="text" class="form-control" id="from_id" placeholder="с">
+  <input type="text" class="form-control" id="to_id" placeholder="по">
+</div>
+
+
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <label class="input-group-text" for="cc_id">Платежные данные</label>
+  </div>
+  <input type="text" class="form-control" id="cc_id" placeholder="Номер карты">
+  <input type="text" class="form-control" id="sum_id" placeholder="Сумма">
+</div>
+
+
+<button type="button" class="btn btn-success" id="make_order_id">Заказать</button>
+
+
+
+{% endblock %}
