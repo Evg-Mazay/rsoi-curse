@@ -33,7 +33,7 @@ class User(database.Base):
 def add_cors(response):
     header = response.headers
     header['Access-Control-Allow-Origin'] = 'http://localhost:7770'
-    header['Access-Control-Allow-Headers'] = 'Content-Type'
+    header['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     header['Access-Control-Allow-Credentials'] = 'true'
     return response
 
@@ -94,18 +94,22 @@ def get_token():
         if sha224(password.encode("utf-8")).hexdigest() != user.password_hash:
             return {"error": "invalid credentials"}, 400
 
-        claims = {'user': username, 'exp': int(time()) + TOKEN_EXPIRE}
-        if user.role == "admin":
-            claims = {**claims, "is_admin": True}
+        is_admin = user.role == "admin"
+        claims = {
+            "user_id": user.id,
+            "is_admin": is_admin,
+            'user': username,
+            'exp': int(time()) + TOKEN_EXPIRE,
+        }
     token = jwt.encode(claims, JWT_SECRET, algorithm='HS256')
-    return {"auth_token": token}
+    return {"auth_token": token, "is_admin": int(is_admin)}
 
 
 @app.route("/verify", methods=["POST"])
 @requires_auth
 def verify_token():
     decoded_jwt = _request_ctx_stack.top.jwt_claims
-    return {"user": decoded_jwt.get("user")}
+    return {"user": decoded_jwt.get("user"), "user_id": decoded_jwt.get("user_id")}
 
 
 @app.route("/users", methods=["POST"])

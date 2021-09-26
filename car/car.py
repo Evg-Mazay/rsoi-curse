@@ -23,10 +23,6 @@ class Car(database.Base):
     type = Column(Text, nullable=False)
 
 
-def make_authorized_request(*args, **kwargs):
-    return request(*args, **kwargs)
-
-
 @app.route('/token', methods=["POST"])
 def get_token():
     if not request.json:
@@ -54,8 +50,25 @@ def get_cars_list():
     return jsonify(result)
 
 
+@app.route('/cars/<string:car_uuid>', methods=["GET"])
+@auth.requires_auth(JWT_SECRET)
+def get_car(car_uuid):
+    with database.Session() as s:
+        car = s.query(Car).filter(Car.uuid == car_uuid).one_or_none()
+        if not car:
+            return {"error": "car not found"}, 404
+        return {
+                    "uuid": car.uuid,
+                    "brand": car.brand,
+                    "model": car.model,
+                    "type": car.type,
+                    "power": car.power,
+                }, 200
+
+
 @app.route('/cars', methods=["POST"])
-@auth.requires_auth(JWT_SECRET, requires_admin=True)
+@auth.check_for_admin
+@auth.requires_auth(JWT_SECRET)
 def create_new_car():
     try:
         brand = request.json["brand"]
@@ -73,7 +86,8 @@ def create_new_car():
 
 
 @app.route('/cars/<string:car_uuid>', methods=["DELETE"])
-@auth.requires_auth(JWT_SECRET, requires_admin=True)
+@auth.check_for_admin
+@auth.requires_auth(JWT_SECRET)
 def delete_car(car_uuid):
     with database.Session() as s:
         car = s.query(Car).filter(Car.uuid == car_uuid).one_or_none()

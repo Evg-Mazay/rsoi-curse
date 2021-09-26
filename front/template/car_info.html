@@ -10,12 +10,32 @@ $( document ).ready(function(){
     "?office_id=" + {{ car_info.last_available.office_id }} +
     "&car_uuid=" + document.location.pathname.split("/")[2]
   });
+
+  $( "#delete_car" ).click(function(){
+    delete_car_completely(document.location.pathname.split("/")[2]);
+  });
 });
 </script>
 
 <h5>
-  {{ car_info.car }}
+  {% if car_info.car %}
+    <div class="card border-success" style="width: 18rem;">
+      <div class="card-header">{{ car_info.car.brand }} - {{ car_info.car.model }}</div>
+      <div class="card-body mb-3">
+        <h6 class="card-subtitle mb-2 text-muted">{{ car_info.car.type }}</h6>
+        <p class="card-text">Мощность двигателя: {{ car_info.car.power }}</p>
+        {% if is_admin %}
+        <button id="delete_car" type="button" class="btn btn-danger">Удалить машину из всех офисов</button>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+  Информация о машине недоступна
+  {% endif %}
+
 </h5>
+
+<br>
 
 
 <h4>

@@ -1,16 +1,16 @@
 from functools import wraps
 from collections import defaultdict
 
-from requests import request
 from flask import Flask
 from flask import request as flask_request, jsonify
 from sqlalchemy import Column, Integer, Text
 
 import database
+import auth
 
 # Экземпляр приложения
 app = Flask(__name__)
-JWT_SECRET = "secret"
+JWT_SECRET = auth.KNOWN_CLIENTS["payment_service"]
 
 
 class Payment(database.Base):
@@ -21,7 +21,18 @@ class Payment(database.Base):
     price = Column(Integer, nullable=False)
 
 
+@app.route('/token', methods=["POST"])
+def get_token():
+    if not flask_request.json:
+        return {"error": "no json"}, 400
+    if auth.KNOWN_CLIENTS.get(flask_request.json["client_id"]) != flask_request.json["client_secret"]:
+        return {"error": "Неизвестный client_id или неправильный client_secret"}
+    token, expire = auth.create_jwt_token(flask_request.json["client_id"], JWT_SECRET)
+    return {"token": token, "expire": expire}, 200
+
+
 @app.route('/payment/pay', methods=["POST"])
+@auth.requires_auth(JWT_SECRET)
 def pay():
     try:
         cc_number = flask_request.json["cc_number"]
@@ -46,6 +57,7 @@ def pay():
 
 
 @app.route('/payment/<int:payment_id>/reverse', methods=["POST"])
+@auth.requires_auth(JWT_SECRET)
 def reverse(payment_id):
     with database.Session() as s:
         payment = s.query(Payment).filter(Payment.id == payment_id).one_or_none()

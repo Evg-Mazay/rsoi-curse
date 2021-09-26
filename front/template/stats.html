@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$( document ).ready(function(){
+
+});
+</script>
+
+
+
+
+{% if message %}
+<h5 class="text-danger">{{ message }}</h5>
+{% endif %}
+
+
+<h4>
+  Статистика по офисам:
+</h4>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Расположение офиса</th>
+      <th scope="col">Количество бронирований</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for office, count in office_stats.items() %}
+    <tr>
+      <th scope="row">{{ office }}</th>
+      <td>{{ count }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+
+<br>
+
+
+<h4>
+  Статистика по моделям:
+</h4>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Модель авто</th>
+      <th scope="col">Количество бронирований</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for model, count in car_stats.items() %}
+    <tr>
+      <th scope="row">{{ model }}</th>
+      <td>{{ count }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+
+
+{% endblock %}

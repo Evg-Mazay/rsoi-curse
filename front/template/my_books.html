@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$( document ).ready(function(){
+  $( ".btn-danger" ).click(function(){
+      cancel_book(this.value);
+  });
+  $( ".btn-warning" ).click(function(){
+      end_book(this.value);
+  });
+});
+</script>
+
+
+<h4>
+  Мои активные заказы:
+</h4>
+
+<ul class="list-group">
+{% if not error %}
+  {% for book in book_info.active %}
+    <li class="list-group-item">
+      <b>Машина:</b>  {{ book.car_uuid }} <br>
+      <b>С</b> {{ book.booking_start }} <b>до</b> {{ book.booking_end }} <br>
+      <b>офис начала:</b> {{ book.start_office }} <b>офис сдачи:</b> {{ book.end_office }} <br>
+      <button type="button" class="btn btn-danger" value="{{ book.id }}">Отменить заказ</button>
+      <button type="button" class="btn btn-warning" value="{{ book.id }}">Завершить заказ</button>
+    </li>
+  {% endfor %}
+  <br>
+  <h4>
+    Завершенные заказы:
+  </h4>
+  {% for book in book_info.done %}
+    <li class="list-group-item">
+      <b>Машина:</b>  {{ book.car_uuid }} <br>
+      <b>С</b> {{ book.booking_start }} <b>до</b> {{ book.booking_end }} <br>
+      <b>офис начала:</b> {{ book.start_office }} <b>офис сдачи:</b> {{ book.end_office }} <br>
+      <b>Статус:</b> {{ book.status }}
+    </li>
+  {% endfor %}
+{% else %}
+  <li class="list-group-item">Ошибка при запросе к сервису бронирования: {{ error }}</li>
+{% endif %}
+</ul>
+
+
+
+
+{% endblock %}

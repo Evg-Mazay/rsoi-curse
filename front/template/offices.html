@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$( document ).ready(function(){
+  $( ".add-car" ).click(function(){add_car(
+    this.value,
+    $("#car_uuid_" + this.value).val(),
+    Date.now() / 1000 | 0
+  );});
+  $( "#add_office" ).click(function(){add_office(office_loc.value);});
+});
+</script>
+
+
+
+{% if is_admin %}
+<div class="card" style="width: 18rem;">
+  <div class="card-body mb-3">
+    <div class="input-group mb-3">
+      <input id="office_loc" type="text" class="form-control" placeholder="location" aria-label="location">
+    </div>
+    <button id="add_office" type="button" class="btn btn-success">Добавить офис</button>
+  </div>
+</div>
+{% endif %}
+
+{% if error %}
+<h5 class="alert alert-danger">{{ error }}</h5>
+{% endif %}
+
+{% for office in offices_list %}
+<div class="card" style="width: 18rem;">
+  <div class="card-header">{{ office.location }}</div>
+  {% if is_admin %}
+  <div class="input-group mb-3">
+    <input id="car_uuid_{{ office.id }}" type="text"
+           class="form-control" placeholder="car_uuid" aria-label="car_uuid">
+    <button value="{{ office.id }}" type="button" class="btn btn-warning add-car">
+      Добавить машину
+    </button>
+  </div>
+  {% endif %}
+
+  <div class="card-body mb-3">
+    <a href="/offices/{{ office.id }}" class="card-link">Список машин</a>
+  </div>
+</div>
+{% endfor %}
+
+
+
+{% endblock %}

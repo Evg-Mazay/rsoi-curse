@@ -33,7 +33,15 @@ $( document ).ready(function(){
     <label class="input-group-text" for="start_office_id">Офис старта</label>
   </div>
   <select class="custom-select" id="start_office_id">
+    {% if office_error %}
     <option selected value="{{ params_info.office_id }}">{{ params_info.office_id }}</option>
+    {% else %}
+      {% for office in office_data  %}
+      <option
+              {% if office.id == params_info.office_id %} selected {% endif %}
+              value="{{ office.id }}">{{ office.location }}</option>
+      {% endfor %}
+    {% endif %}
   </select>
 </div>
 
@@ -57,7 +65,15 @@ $( document ).ready(function(){
     <label class="input-group-text" for="car_id">Машина</label>
   </div>
   <select class="custom-select" id="car_id">
+    {% if car_error %}
     <option selected value="{{ params_info.car_uuid }}">{{ params_info.car_uuid }}</option>
+    {% else %}
+      {% for car in car_data  %}
+      <option
+              {% if car.uuid == params_info.car_uuid %} selected {% endif %}
+              value="{{ car.uuid }}">{{ car.brand }} - {{ car.model }}</option>
+      {% endfor %}
+    {% endif %}
   </select>
 </div>
 

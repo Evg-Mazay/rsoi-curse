@@ -1,3 +1,8 @@
+function error_function(jqXHR, exception){
+    $( "#error_message_alert" ).text("[" + jqXHR.status + "] " + jqXHR.responseText);
+    $( "#error_message_alert" ).show();
+}
+
 function sign_in(login, password){
     $.ajax({
        type: 'POST',
@@ -11,8 +16,10 @@ function sign_in(login, password){
             console.log("Token obtained: " + jsondata["auth_token"]);
             document.cookie = "token=" + jsondata["auth_token"];
             document.cookie = "user=" + login;
+            document.cookie = "is_admin=" + jsondata["is_admin"];
             document.location.href = "/"
-       }
+       },
+       error: error_function
     })
 }
 
@@ -35,8 +42,10 @@ function register(login, password){
             console.log("Token obtained: " + jsondata["auth_token"]);
             document.cookie = "token=" + jsondata["auth_token"];
             document.cookie = "user=" + login;
+            document.cookie = "is_admin=" + 0;
             document.location.href = "/"
-       }
+       },
+       error: error_function
     })
 }
 
@@ -63,6 +72,95 @@ function make_book(office_start, office_end, car_uuid, time_start, time_end, cc_
        contentType: 'application/json',
        success: function(jsondata){
             document.location.href = "/";
-       }
+       },
+       error: error_function
+    })
+}
+
+
+function cancel_book(booking_id){
+    $.ajax({
+       type: 'DELETE',
+       crossDomain: true,
+       xhrFields: {withCredentials: true},
+       url: '{{ book_endpoint }}/' + booking_id,
+       success: function(jsondata){
+            document.location.href = "/";
+       },
+       error: error_function
+    })
+}
+
+
+function end_book(booking_id){
+    $.ajax({
+       type: 'PATCH',
+       crossDomain: true,
+       xhrFields: {withCredentials: true},
+       url: '{{ book_endpoint }}/' + booking_id + "/finish",
+       success: function(jsondata){
+            document.location.href = "/";
+       },
+       error: error_function
+    })
+}
+
+function delete_car_completely(car_uuid) {
+    $.ajax({
+       type: 'DELETE',
+       crossDomain: true,
+       xhrFields: {withCredentials: true},
+       url: '{{ offices_endpoint }}/cars/' + car_uuid + '/completely',
+       success: function(jsondata){
+            document.location.href = "/";
+       },
+       error: error_function
+    })
+}
+
+
+function add_office(location) {
+    $.ajax({
+       type: 'POST',
+       crossDomain: true,
+       xhrFields: {withCredentials: true},
+       contentType: 'application/json',
+       data: JSON.stringify({"location": location}),
+       url: '{{ offices_endpoint }}',
+       success: function(jsondata){
+            document.location.href = "/";
+       },
+       error: error_function
+    })
+}
+
+function add_car(office_id, car_uuid, available_from) {
+    $.ajax({
+       type: 'POST',
+       crossDomain: true,
+       xhrFields: {withCredentials: true},
+       contentType: 'application/json',
+       data: JSON.stringify({"available_from": available_from}),
+       url: '{{ offices_endpoint }}/' + office_id + '/cars/' + car_uuid,
+       success: function(jsondata){
+            document.location.href = "/";
+       },
+       error: error_function
+    })
+}
+
+
+function create_car(brand, model, type, power) {
+    $.ajax({
+       type: 'POST',
+       crossDomain: true,
+       xhrFields: {withCredentials: true},
+       contentType: 'application/json',
+       data: JSON.stringify({"brand": brand, "model": model, "type": type, "power": power}),
+       url: '{{ cars_list_endpoint }}',
+       success: function(jsondata){
+            document.location.href = "/";
+       },
+       error: error_function
     })
 }

@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
 
-    <title>Вход/регистрация</title>
+    <title>Курсовая работа</title>
 
 
     <!-- Bootstrap -->
@@ -36,18 +36,32 @@
       <h5 class="my-0 mr-md-auto font-weight-normal">Zакаz Машин   </h5>
       <nav class="my-2 my-md-0 mr-md-3">
         <a class="p-2 text-dark" href="/cars">Машины</a>
-        <a class="p-2 text-dark" href="#">Офисы</a>
+        <a class="p-2 text-dark" href="/offices">Офисы</a>
+        {% if username %}
+        <a class="p-2 text-dark" href="/my_books">Мои заказы</a>
+        {% endif %}
+
+        {% if is_admin %}
+        <a class="p-2 text-dark" href="/stats">Статистика бронирований</a>
+        {% endif %}
       </nav>
         <div class="p-3 align-items-right">
           {% block username_place %}
           {% if username %}
-          <a>Вы авторизованы как: <b>{{ username }}</b></a>
+          <a>
+            Вы авторизованы как: <b>{{ username }}</b>
+            {% if is_admin %} <span class="text-danger">(роль админа)</span> {% endif %}
+          </a>
           <button id="exit_id" type="button" class="btn btn-dark">Выйти</button>
           {% else %}
             <a class="btn btn-outline-primary" href="/auth">Вход/регистрация</a>
           {% endif %}
           {% endblock %}
         </div>
+    </div>
+
+    <div id="error_message_alert" class="alert alert-danger" role="alert" style="display: none;">
+
     </div>
 
     {% block content %}

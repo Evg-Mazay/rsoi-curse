@@ -1,17 +1,18 @@
 from functools import wraps
 from collections import defaultdict
 
-from requests import request
+from requests import RequestException
 from flask import Flask
 from flask import request as flask_request, jsonify
 from sqlalchemy import Column, Integer, Text
 
 import database
+import auth
 
 # Экземпляр приложения
 app = Flask(__name__)
 CLIENT_ID = "office_service"
-JWT_SECRET = "office_12345"
+JWT_SECRET = auth.KNOWN_CLIENTS["office_service"]
 current_token = None
 
 CAR_SERVICE_URL = "localhost:7774"
@@ -32,41 +33,90 @@ class AvailableCar(database.Base):
     available_to = Column(Integer, nullable=True)
 
 
-def authorized_request(domain, *args, **kwargs):
-    global current_token
-
-    kwargs["headers"] = {"Authorization": f"Bearer {current_token}"}
-    result = request(*args, **kwargs)
-    if result.status_code != 401:
-        return result
-
-    credentials = {"client_id": CLIENT_ID, "client_secret": JWT_SECRET}
-    token_response = request("POST", f"http://{domain}/token", json=credentials)
-    current_token = token_response.json()["token"]
-
-    kwargs["headers"] = {"Authorization": f"Bearer {current_token}"}
-    return request(*args, **kwargs)
+@app.route('/token', methods=["POST"])
+def get_token():
+    if not flask_request.json:
+        return {"error": "no json"}, 400
+    if auth.KNOWN_CLIENTS.get(flask_request.json["client_id"]) != flask_request.json["client_secret"]:
+        return {"error": "Неизвестный client_id или неправильный client_secret"}
+    token, expire = auth.create_jwt_token(flask_request.json["client_id"], JWT_SECRET)
+    return {"token": token, "expire": expire}, 200
 
 
 @app.route('/offices', methods=["GET"])
+@auth.requires_auth(JWT_SECRET)
 def get_offices_list():
     with database.Session() as s:
         offices = s.query(RentOffice).all()
         return jsonify([{"id": o.id, "location": o.location} for o in offices])
 
 
+@app.route('/offices', methods=["POST"])
+@auth.check_for_admin
+@auth.requires_auth(JWT_SECRET)
+def create_office():
+    try:
+        location = flask_request.json["location"]
+    except Exception as e:
+        return {"error": "bad body", "details": str(e)}, 400
+    with database.Session() as s:
+        s.add(RentOffice(location=location))
+    return {}, 201
+
+
 @app.route('/offices/<int:office_id>/cars', methods=["GET"])
+@auth.requires_auth(JWT_SECRET)
 def get_cars_list(office_id):
     with database.Session() as s:
-        cars_availability = (
+        office = s.query(RentOffice).filter(RentOffice.id == office_id).one_or_none()
+        if not office:
+            return {"error": "office not found"}, 404
+
+        car_availabilities = (
             s.query(AvailableCar)
             .filter(AvailableCar.office_id == office_id)
+            .order_by(AvailableCar.available_from.desc())
             .all()
         )
-        return jsonify([(c.id, c.car_uuid) for c in cars_availability])
+        if not car_availabilities:
+            return [], 200
+
+        result = {}
+        result["office_location"] = office.location
+        result["available_cars"] = [{
+            "car_uuid": c.car_uuid, "from": c.available_from
+        } for c in car_availabilities if not c.available_to]
+
+        result["unavailable_cars"] = []
+        for a in car_availabilities:
+            if a.available_to:
+                result["unavailable_cars"].append(
+                    {"car_uuid": a.car_uuid, "from": a.available_from, "to": a.available_to}
+                )
+
+
+        try:
+            cars_response = auth.authorized_request(
+                CLIENT_ID, JWT_SECRET,
+                "GET", f"http://{CAR_SERVICE_URL}/cars",
+                headers=flask_request.headers,
+            )
+        except RequestException:
+            pass
+        else:
+            if cars_response.ok:
+                names = {c["uuid"]: f'{c["brand"]} - {c["model"]}' for c in cars_response.json()}
+                for car in result["available_cars"]:
+                    car["name"] = names[car["car_uuid"]]
+                for car in result["unavailable_cars"]:
+                    car["name"] = names[car["car_uuid"]]
+
+
+        return jsonify(dict(result))
 
 
 @app.route('/offices/<int:office_id>/cars/<string:car_uuid>', methods=["GET"])
+@auth.requires_auth(JWT_SECRET)
 def get_car_availability_in_office(office_id, car_uuid):
     with database.Session() as s:
         car_availabilities = (
@@ -86,7 +136,17 @@ def get_car_availability_in_office(office_id, car_uuid):
 
 
 @app.route('/offices/cars/<string:car_uuid>', methods=["GET"])
+@auth.requires_auth(JWT_SECRET)
 def get_car_availability(car_uuid):
+    car_info = None
+    car_info_response = auth.authorized_request(
+        CLIENT_ID, JWT_SECRET,
+        "GET", f"http://{CAR_SERVICE_URL}/cars/{car_uuid}",
+        headers=flask_request.headers,
+    )
+    if car_info_response.ok:
+        car_info = car_info_response.json()
+
     with database.Session() as s:
         car_availabilities = (
             s.query(AvailableCar)
@@ -98,7 +158,7 @@ def get_car_availability(car_uuid):
             return {"error": "car not available"}, 404
 
         result = {}
-        result["car"] = None  # request
+        result["car"] = car_info
         result["offices"] = []
         result["last_available"] = {
             "office_id": car_availabilities[0].office_id, "from": car_availabilities[0].available_from
@@ -110,17 +170,37 @@ def get_car_availability(car_uuid):
 
 
 @app.route('/offices/<int:office_id>/cars/<string:car_uuid>', methods=["POST"])
+@auth.check_for_admin
+@auth.requires_auth(JWT_SECRET)
 def add_car_to_office(office_id, car_uuid):
+    try:
+        available_from = int(flask_request.json["available_from"])
+    except Exception as e:
+        return {"error": "bad body", "details": str(e)}, 400
+
     with database.Session() as s:
         if not list(s.query(RentOffice).filter(RentOffice.id == office_id).all()):
             return {"error": "несуществующий office_id"}, 400
-        if not request("GET", f"{CAR_SERVICE_URL}/cars/{car_uuid}").ok:
+        check_car_response = auth.authorized_request(
+            CLIENT_ID, JWT_SECRET,
+            "GET",
+            f"http://{CAR_SERVICE_URL}/cars",
+            headers=flask_request.headers
+        )
+        if car_uuid not in [c["uuid"] for c in check_car_response.json()]:
             return {"error": "несуществующий car_uuid"}, 400
-        s.add(AvailableCar(office_id=office_id, car_uuid=car_uuid))
+        s.add(AvailableCar(
+            office_id=office_id,
+            car_uuid=car_uuid,
+            available_from=available_from,
+            available_to=None,
+        ))
     return {}, 201
 
 
 @app.route('/offices/<int:office_id>/cars/<string:car_uuid>', methods=["DELETE"])
+@auth.check_for_admin
+@auth.requires_auth(JWT_SECRET)
 def delete_car_from_office(office_id, car_uuid):
     with database.Session() as s:
         car = (
@@ -135,7 +215,25 @@ def delete_car_from_office(office_id, car_uuid):
     return {}, 201
 
 
+@app.route('/offices/cars/<string:car_uuid>/completely', methods=["DELETE"])
+@auth.check_for_admin
+@auth.requires_auth(JWT_SECRET)
+def delete_car_completely(car_uuid):
+    with database.Session() as s:
+        car = (
+            s.query(AvailableCar)
+            .filter(AvailableCar.car_uuid == car_uuid)
+            .all()
+        )
+        if not car:
+            return {"error": "car not found"}, 404
+        s.delete(car)
+    return {}, 201
+
+
 @app.route('/offices/cars/<string:car_uuid>', methods=["PUT"])
+@auth.check_for_service
+@auth.requires_auth(JWT_SECRET)
 def book(car_uuid):
     try:
         start_time = int(flask_request.json["start_time"])
@@ -177,6 +275,8 @@ def book(car_uuid):
 
 
 @app.route('/offices/cars/<string:car_uuid>', methods=["DELETE"])
+@auth.check_for_service
+@auth.requires_auth(JWT_SECRET)
 def delete_car_availability(car_uuid):
     try:
         start_time = int(flask_request.json["start_time"])

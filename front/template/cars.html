@@ -6,9 +6,27 @@
 <script type="text/javascript">
 $( document ).ready(function(){
   $( "#button1id" ).click(function(){sign_in(log_input.value, pass_input.value)});
-  $( "#button2id" ).click(function(){});
+  $( "#add_car" ).click(function(){
+      create_car(car_brand.value, car_model.value, car_type.value, car_power.value);
+  });
 });
 </script>
+
+
+{% if is_admin %}
+<div class="card" style="width: 18rem;">
+  <div class="card-body mb-3">
+    <div class="input-group mb-3">
+      <input id="car_brand" type="text" class="form-control" placeholder="brand" aria-label="brand">
+      <input id="car_model" type="text" class="form-control" placeholder="model" aria-label="model">
+      <input id="car_type" type="text" class="form-control" placeholder="type" aria-label="type">
+      <input id="car_power" type="text" class="form-control" placeholder="power" aria-label="power">
+    </div>
+    <button id="add_car" type="button" class="btn btn-success">Добавить машину</button>
+  </div>
+</div>
+{% endif %}
+
 
 {% for car in car_list %}
 <div class="card" style="width: 18rem;">

@@ -3,23 +3,26 @@ from time import time
 from hashlib import sha224
 from functools import wraps
 from datetime import datetime
-from requests import request
+from requests import request, RequestException
 
 from flask import Flask
-from flask import request as flask_request, _request_ctx_stack
+from flask import request as flask_request, _request_ctx_stack, jsonify
 from jose import jwt
 from jose.exceptions import JWTError
 from sqlalchemy import Column, Integer, Text
 
 import database
+import auth
 
 
 # Экземпляр приложения
 app = Flask(__name__)
-JWT_SECRET = "secret"
+CLIENT_ID = "booking_service"
+JWT_SECRET = auth.KNOWN_CLIENTS["booking_service"]
 OFFICE_SERVICE_URL = "localhost:7775"
 CAR_SERVICE_URL = "localhost:7774"
 PAYMENT_SERVICE_URL = "localhost:7776"
+STATISTIC_SERVICE_URL = "localhost:7778"
 
 
 class CarBooking(database.Base):
@@ -36,10 +39,30 @@ class CarBooking(database.Base):
 
 
 def make_authorized_request(*args, **kwargs):
-    return request(*args, **kwargs)
+    class FailedResponseMock:
+        ok = False
+        status_code = 0
+        def __init__(self, e):
+            self.text = e
+
+    try:
+        return auth.authorized_request(*args, **kwargs)
+    except RequestException as e:
+        return FailedResponseMock(e)
+
+
+@app.route('/token', methods=["POST"])
+def get_token():
+    if not flask_request.json:
+        return {"error": "no json"}, 400
+    if auth.KNOWN_CLIENTS.get(flask_request.json["client_id"]) != flask_request.json["client_secret"]:
+        return {"error": "Неизвестный client_id или неправильный client_secret"}
+    token, expire = auth.create_jwt_token(flask_request.json["client_id"], JWT_SECRET)
+    return {"token": token, "expire": expire}, 200
 
 
 @app.route("/booking", methods=["POST"])
+@auth.requires_auth(JWT_SECRET)
 def new_booking():
     try:
         car_uuid = flask_request.json["car_uuid"]
@@ -55,10 +78,12 @@ def new_booking():
 
     # Сходить в payment_service и заплатить
     api_call_result = make_authorized_request(
+        CLIENT_ID, JWT_SECRET,
         "POST", f"http://{PAYMENT_SERVICE_URL}/payment/pay", json={
             "cc_number": cc_number,
             "ammount": price
-        }
+        },
+        headers=flask_request.headers
     )
     if not api_call_result.ok:
         return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -67,12 +92,14 @@ def new_booking():
 
     # Добавить в расписание машины недоступность
     api_call_result = make_authorized_request(
+        CLIENT_ID, JWT_SECRET,
         "PUT",  f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}", json={
             "start_time": booking_start,
             "end_time": booking_end,
             "taken_from": start_office,
             "taken_to": end_office,
-        }
+        },
+        headers=flask_request.headers
     )
     if not api_call_result.ok:
         return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -93,10 +120,23 @@ def new_booking():
         s.flush()
         booking_id = car_booking.id
 
+    # Записываем в статистику
+    api_call_result = make_authorized_request(
+        CLIENT_ID, JWT_SECRET,
+        "POST", f"http://{STATISTIC_SERVICE_URL}/reports/create_record", json={
+            "car_uuid": car_uuid,
+            "office_id": start_office,
+        },
+        headers=flask_request.headers
+    )
+    if not api_call_result.ok:
+        print("ошибка при запросе сервиса статистики:", api_call_result.status_code, api_call_result.text)
+
     return {"booking_id": booking_id}, 201
 
 
 @app.route("/booking/<int:booking_id>", methods=["DELETE"])
+@auth.requires_auth(JWT_SECRET)
 def cancel_booking(booking_id):
     with database.Session() as s:
         car_booking = s.query(CarBooking).filter(CarBooking.id == booking_id).one_or_none()
@@ -111,17 +151,21 @@ def cancel_booking(booking_id):
 
     # Вернуть деньги
     api_call_result = make_authorized_request(
+        CLIENT_ID, JWT_SECRET,
         "POST",
-        f"http://{PAYMENT_SERVICE_URL}/payment/{payment_id}/reverse"
+        f"http://{PAYMENT_SERVICE_URL}/payment/{payment_id}/reverse",
+        headers=flask_request.headers
     )
     if not api_call_result.ok:
         return {"error": "bad api request", "details": api_call_result.text}, 500
 
     # Удалить в расписании машины доступность
     api_call_result = make_authorized_request(
+        CLIENT_ID, JWT_SECRET,
         "DELETE",
         f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
-        json={"taken_from": taken_from, "start_time": start_time}
+        json={"taken_from": taken_from, "start_time": start_time},
+        headers=flask_request.headers
     )
     if not api_call_result.ok:
         return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -137,6 +181,7 @@ def cancel_booking(booking_id):
 
 
 @app.route("/booking/<int:booking_id>/finish", methods=["PATCH"])
+@auth.requires_auth(JWT_SECRET)
 def end_booking(booking_id):
     with database.Session() as s:
         car_booking = s.query(CarBooking).filter(CarBooking.id == booking_id).one_or_none()
@@ -151,9 +196,11 @@ def end_booking(booking_id):
 
     # Удалить в расписании машины доступность
     api_call_result = make_authorized_request(
+        CLIENT_ID, JWT_SECRET,
         "DELETE",
         f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
-        json={"taken_from": taken_from, "start_time": start_time}
+        json={"taken_from": taken_from, "start_time": start_time},
+        headers=flask_request.headers
     )
     if not api_call_result.ok:
         return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -164,6 +211,47 @@ def end_booking(booking_id):
         car_booking.status = "FINISHED"
 
     return {}, 200
+
+
+@app.route("/booking/user/<int:user_id>", methods=["GET"])
+@auth.requires_auth(JWT_SECRET)
+def get_all_books(user_id):
+    with database.Session() as s:
+        car_bookings = (
+            s.query(CarBooking)
+            .filter(CarBooking.user_id == user_id)
+            .order_by(CarBooking.booking_start.desc())
+            .all()
+        )
+        result = {
+            "active": [
+                {
+                    "id": c.id,
+                    "car_uuid": c.car_uuid,
+                    "booking_start": c.booking_start,
+                    "booking_end": c.booking_end,
+                    "start_office": c.start_office,
+                    "end_office": c.end_office,
+                    "status": c.status,
+                }
+                for c in car_bookings
+                if c.status == "NEW"
+            ],
+            "done": [
+                {
+                    "id": c.id,
+                    "car_uuid": c.car_uuid,
+                    "booking_start": c.booking_start,
+                    "booking_end": c.booking_end,
+                    "start_office": c.start_office,
+                    "end_office": c.end_office,
+                    "status": c.status,
+                }
+                for c in car_bookings
+                if c.status != "NEW"
+            ]
+        }
+        return result, 200
 
 
 if __name__ == '__main__':
