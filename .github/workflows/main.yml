@@ -33,3 +33,4 @@ jobs:
             heroku_app_name: "curse-front"
             heroku_email: "evgenij997@yandex.ru"
             appdir: "front"
+            
