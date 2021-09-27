@@ -1,3 +1,4 @@
 flask
 sqlalchemy
 python-jose
+requests
