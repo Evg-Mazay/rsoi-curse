@@ -4,6 +4,7 @@ from hashlib import sha224
 from functools import wraps
 from datetime import datetime
 from requests import request, RequestException
+import os
 
 from flask import Flask
 from flask import request as flask_request, _request_ctx_stack, jsonify
@@ -256,4 +257,9 @@ def get_all_books(user_id):
 
 if __name__ == '__main__':
     database.create_schema()
-    app.run(host="127.0.0.1", port=7777)
+
+    PORT = os.environ.get("PORT")
+    if not PORT:
+        print("USING DEFAULT PORT 7777, не задан $PORT")
+        PORT = 7777
+    app.run(host="0.0.0.0", port=PORT)

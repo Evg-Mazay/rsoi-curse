@@ -1,5 +1,6 @@
 from functools import wraps
 from collections import defaultdict
+import os
 
 from requests import RequestException
 from flask import Flask
@@ -303,4 +304,9 @@ def delete_car_availability(car_uuid):
 
 if __name__ == '__main__':
     database.create_schema()
-    app.run(host="127.0.0.1", port=7775)
+
+    PORT = os.environ.get("PORT")
+    if not PORT:
+        print("USING DEFAULT PORT 7775, не задан $PORT")
+        PORT = 7775
+    app.run(host="0.0.0.0", port=PORT)

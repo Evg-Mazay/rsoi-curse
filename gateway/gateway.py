@@ -1,4 +1,5 @@
 from functools import wraps
+import os
 
 from requests import request, RequestException
 
@@ -56,23 +57,6 @@ def authorized_request(domain, *args, **kwargs):
 
 class RoleError(Exception):
     pass
-
-
-# def requires_auth(requires_admin=False):
-#     """
-#     Декоратор, валидирующий jwt-токен
-#     """
-#     def _requires_auth(f):
-#         @wraps(f)
-#         def inner(*args, **kwargs):
-#             auth_header = flask_request.headers.get("Authorization")
-#             if auth_header:
-#                 body = jwt.decode(auth_header, JWT_SECRET, algorithms=['HS256'])
-#                 if requires_admin and not body.get("is_admin"):
-#                     raise RoleError(f"You must be admin to do this")
-#             return f(*args, **kwargs)
-#         return inner
-#     return _requires_auth
 
 
 def verify_token_from_cookie():
@@ -142,5 +126,9 @@ def route(path):
 # Точка входа ##############################
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=7779)
+    PORT = os.environ.get("PORT")
+    if not PORT:
+        print("USING DEFAULT PORT 7779, не задан $PORT")
+        PORT = 7779
+    app.run(host="0.0.0.0", port=PORT)
 

@@ -1,5 +1,6 @@
 from functools import wraps
 from collections import defaultdict
+import os
 
 from requests import request, RequestException
 from flask import Flask, redirect
@@ -262,5 +263,8 @@ def stats():
 # Точка входа ##############################
 
 if __name__ == '__main__':
-    database.create_schema()
-    app.run(host="127.0.0.1", port=7770)
+    PORT = os.environ.get("PORT")
+    if not PORT:
+        print("USING DEFAULT PORT 7770, не задан $PORT")
+        PORT = 7770
+    app.run(host="0.0.0.0", port=PORT)

@@ -2,6 +2,7 @@ from base64 import b64encode, b64decode
 from time import time
 from hashlib import sha224
 from functools import wraps
+import os
 
 from flask import Flask
 from flask import request, _request_ctx_stack
@@ -145,4 +146,9 @@ def register():
 
 if __name__ == '__main__':
     database.create_schema()
-    app.run(host="127.0.0.1", port=7771)
+
+    PORT = os.environ.get("PORT")
+    if not PORT:
+        print("USING DEFAULT PORT 7771, не задан $PORT")
+        PORT = 7771
+    app.run(host="0.0.0.0", port=PORT)

@@ -1,5 +1,6 @@
 from functools import wraps
 from collections import defaultdict
+import os
 
 from requests import request
 from flask import Flask
@@ -79,4 +80,9 @@ def booking_by_offices():
 
 if __name__ == '__main__':
     database.create_schema()
-    app.run(host="127.0.0.1", port=7778)
+
+    PORT = os.environ.get("PORT")
+    if not PORT:
+        print("USING DEFAULT PORT 7778, не задан $PORT")
+        PORT = 7778
+    app.run(host="0.0.0.0", port=PORT)
