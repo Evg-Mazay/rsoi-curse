@@ -7,7 +7,6 @@ from flask import request as flask_request, jsonify, render_template
 from flask_cors import CORS, cross_origin
 from sqlalchemy import Column, Integer, Text
 
-import database
 
 # Экземпляр приложения
 app = Flask(__name__, template_folder='template')
