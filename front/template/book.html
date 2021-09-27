@@ -32,47 +32,48 @@ $( document ).ready(function(){
   <div class="input-group-prepend">
     <label class="input-group-text" for="start_office_id">Офис старта</label>
   </div>
-  <select class="custom-select" id="start_office_id">
+  <select disabled class="custom-select" id="start_office_id">
     {% if office_error %}
-    <option selected value="{{ params_info.office_id }}">{{ params_info.office_id }}</option>
+    <option value="{{ params_info.office_id }}">{{ params_info.office_id }}</option>
     {% else %}
-      {% for office in office_data  %}
-      <option
-              {% if office.id == params_info.office_id %} selected {% endif %}
-              value="{{ office.id }}">{{ office.location }}</option>
-      {% endfor %}
+    <option value="{{ params_info.office_id }}">{{ current_office_name }}</option>
     {% endif %}
   </select>
 </div>
 
 <div class="input-group mb-3">
   <div class="input-group-prepend">
-    <label class="input-group-text" for="return_office_id">Офис возврата</label>
+    <label class="input-group-text" for="return_office_id">Офис назначения</label>
   </div>
-  <input type="text" class="form-control" id="return_office_id">
+  <select class="custom-select" id="return_office_id">
+    {% if office_error %}
+    <option value="{{ params_info.office_id }}">{{ params_info.office_id }}</option>
+    {% else %}
+      {% for office in office_data %}
+        <option value="{{ office.id }}">{{ office.location }}</option>
+      {% endfor %}
+    {% endif %}
+  </select>
+</div>
 
 
+<div class="input-group mb-3">
   <div class="input-daterange input-group" id="datepicker">
     <input type="text" class="input-sm form-control" name="start" />
-    <span class="input-group-addon">to</span>
+    <span> to </span>
     <input type="text" class="input-sm form-control" name="end" />
   </div>
-
 </div>
 
 <div class="input-group mb-3">
   <div class="input-group-prepend">
     <label class="input-group-text" for="car_id">Машина</label>
   </div>
-  <select class="custom-select" id="car_id">
+  <select disabled class="custom-select" id="car_id">
     {% if car_error %}
-    <option selected value="{{ params_info.car_uuid }}">{{ params_info.car_uuid }}</option>
+    <option value="{{ params_info.car_uuid }}">{{ params_info.car_uuid }}</option>
     {% else %}
-      {% for car in car_data  %}
-      <option
-              {% if car.uuid == params_info.car_uuid %} selected {% endif %}
-              value="{{ car.uuid }}">{{ car.brand }} - {{ car.model }}</option>
-      {% endfor %}
+    <option value="{{ params_info.car_uuid }}">{{ current_car_name }}</option>
     {% endif %}
   </select>
 </div>

@@ -29,7 +29,7 @@ def context_with_user():
     return {
         **context,
         "username": flask_request.cookies.get('user'),
-        "is_admin": int(flask_request.cookies.get('is_admin'), 0)
+        "is_admin": int(flask_request.cookies.get('is_admin', 0))
     }
 
 
@@ -146,32 +146,46 @@ def office_page(office_id):
 
 @app.route('/book', methods=["GET"])
 def book_page():
-    office_id = flask_request.args.get("office_id")
+    office_id = int(flask_request.args.get("office_id"))
     car_uuid = flask_request.args.get("car_uuid")
 
+    car_name = None
+    car_error = False
+    car_response = request(
+        "GET", f"http://{GATEWAY_URL}/cars/{car_uuid}", headers=flask_request.headers
+    )
+    if not car_response.ok:
+        car_error = True
+    else:
+        car_name = f"{car_response.json()['brand']} - {car_response.json()['model']}"
+
+    office_name = None
     office_error = False
     office_response = request(
         "GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers
     )
     if not office_response.ok:
         office_error = True
+    else:
+        for office in office_response.json():
+            if office["id"] == office_id:
+                office_name = office["location"]
 
-    car_error = False
-    car_response = request(
-        "GET", f"http://{GATEWAY_URL}/cars", headers=flask_request.headers
-    )
-    if not car_response.ok:
-        car_error = True
 
+    print(car_response.status_code, car_response.text)
+    print(office_response.status_code, office_response.text)
+
+    print(office_name, car_name)
 
     return render_template(
         "book.html",
         **context_with_user(),
         params_info={"office_id": office_id, "car_uuid": car_uuid},
         office_error=office_error,
-        office_data=office_response.json() if office_response.ok else None,
         car_error=car_error,
-        car_data=car_response.json() if office_response.ok else None,
+        office_data=office_response.json() if office_response.ok else None,
+        current_office_name=office_name,
+        current_car_name=car_name,
     ), 200
 
 
