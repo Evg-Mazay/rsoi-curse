@@ -22,48 +22,39 @@ jobs:
       #    environment: postman/postman-heroku-environment.json
       #    delayRequest: 50
       #    reporters: cli
-    deploy_front:
+    deploy:
       name: DeployFront
       runs-on: ubuntu-latest
       steps:
+        - name: DeployFront
         - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6 # This is the action
+        - uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-front"
             heroku_email: "evgenij997@yandex.ru"
             appdir: "front"
-
-        - name: Sleep for 10s
-          uses: juliangruber/sleep-action@v1
-          with:
-            time: 10s
+          env:
+            HD_SESSION_URL: "curse-session.herokuapp.com"
+            HD_GATEWAY_URL: "curse-gateway.herokuapp.com"
 
 
-    deploy_gateway:
-      name: DeployGateway
-      runs-on: ubuntu-latest
-      steps:
+        - name: DeployGateway
         - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6 # This is the action
+        - uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-gateway"
             heroku_email: "evgenij997@yandex.ru"
             appdir: "gateway"
-
-        - name: Sleep for 10s
-          uses: juliangruber/sleep-action@v1
-          with:
-            time: 10s
+          env:
+            HD_OFFICE_SERVICE_URL: "curse-office.herokuapp.com"
+            HD_BOOKING_SERVICE_URL: "curse-booking.herokuapp.com"
 
 
-    deploy_session:
-      name: DeploySession
-      runs-on: ubuntu-latest
-      steps:
+        - name: DeploySession
         - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6 # This is the action
+        - uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-session"
@@ -72,18 +63,10 @@ jobs:
           env:
             HD_MINIMAL_MODE: 1
 
-        - name: Sleep for 10s
-          uses: juliangruber/sleep-action@v1
-          with:
-            time: 10s
 
-
-    deploy_office:
-      name: DeployOffice
-      runs-on: ubuntu-latest
-      steps:
+        - name: DeployOffice
         - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6 # This is the action
+        - uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-office"
@@ -92,7 +75,15 @@ jobs:
           env:
             HD_MINIMAL_MODE: 1
 
-        - name: Sleep for 10s
-          uses: juliangruber/sleep-action@v1
+
+        - name: DeployBooking
+        - uses: actions/checkout@v2
+        - uses: akhileshns/heroku-deploy@v3.4.6
           with:
-            time: 10s
+            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+            heroku_app_name: "curse-booking"
+            heroku_email: "evgenij997@yandex.ru"
+            appdir: "booking"
+          env:
+            HD_OFFICE_SERVICE_URL: "curse-office.herokuapp.com"
+            HD_MINIMAL_MODE: 1

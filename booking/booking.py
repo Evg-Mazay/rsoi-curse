@@ -20,11 +20,19 @@ import auth
 app = Flask(__name__)
 CLIENT_ID = "booking_service"
 JWT_SECRET = auth.KNOWN_CLIENTS["booking_service"]
-OFFICE_SERVICE_URL = "localhost:7775"
-CAR_SERVICE_URL = "localhost:7774"
-PAYMENT_SERVICE_URL = "localhost:7776"
-STATISTIC_SERVICE_URL = "localhost:7778"
 
+OFFICE_SERVICE_URL = os.environ.get("OFFICE_SERVICE_URL", "localhost:7775")
+CAR_SERVICE_URL = os.environ.get("CAR_SERVICE_URL", "localhost:7774")
+PAYMENT_SERVICE_URL = os.environ.get("PAYMENT_SERVICE_URL", "localhost:7776")
+STATISTIC_SERVICE_URL = os.environ.get("STATISTIC_SERVICE_URL", "localhost:7778")
+
+MINIMAL_MODE = int(os.environ.get("MINIMAL_MODE", 0))
+print("MINIMAL_MODE:", MINIMAL_MODE)
+
+print("OFFICE_SERVICE_URL:", OFFICE_SERVICE_URL)
+print("CAR_SERVICE_URL:", CAR_SERVICE_URL)
+print("PAYMENT_SERVICE_URL:", PAYMENT_SERVICE_URL)
+print("STATISTIC_SERVICE_URL:", STATISTIC_SERVICE_URL)
 
 class CarBooking(database.Base):
     __tablename__ = 'car_booking'
@@ -78,18 +86,21 @@ def new_booking():
         return {"error": "bad body", "details": str(e)}, 400
 
     # Сходить в payment_service и заплатить
-    api_call_result = make_authorized_request(
-        CLIENT_ID, JWT_SECRET,
-        "POST", f"http://{PAYMENT_SERVICE_URL}/payment/pay", json={
-            "cc_number": cc_number,
-            "ammount": price
-        },
-        headers=flask_request.headers
-    )
-    if not api_call_result.ok:
-        return {"error": "bad api request", "details": api_call_result.text}, 500
+    if not MINIMAL_MODE:
+        api_call_result = make_authorized_request(
+            CLIENT_ID, JWT_SECRET,
+            "POST", f"http://{PAYMENT_SERVICE_URL}/payment/pay", json={
+                "cc_number": cc_number,
+                "ammount": price
+            },
+            headers=flask_request.headers
+        )
+        if not api_call_result.ok:
+            return {"error": "bad api request", "details": api_call_result.text}, 500
+        else:
+            payment_id = api_call_result.json()["payment_id"]
     else:
-        payment_id = api_call_result.json()["payment_id"]
+        payment_id = 0
 
     # Добавить в расписание машины недоступность
     api_call_result = make_authorized_request(
@@ -122,16 +133,17 @@ def new_booking():
         booking_id = car_booking.id
 
     # Записываем в статистику
-    api_call_result = make_authorized_request(
-        CLIENT_ID, JWT_SECRET,
-        "POST", f"http://{STATISTIC_SERVICE_URL}/reports/create_record", json={
-            "car_uuid": car_uuid,
-            "office_id": start_office,
-        },
-        headers=flask_request.headers
-    )
-    if not api_call_result.ok:
-        print("ошибка при запросе сервиса статистики:", api_call_result.status_code, api_call_result.text)
+    if not MINIMAL_MODE:
+        api_call_result = make_authorized_request(
+            CLIENT_ID, JWT_SECRET,
+            "POST", f"http://{STATISTIC_SERVICE_URL}/reports/create_record", json={
+                "car_uuid": car_uuid,
+                "office_id": start_office,
+            },
+            headers=flask_request.headers
+        )
+        if not api_call_result.ok:
+            print("ошибка при запросе сервиса статистики:", api_call_result.status_code, api_call_result.text)
 
     return {"booking_id": booking_id}, 201
 
@@ -151,14 +163,15 @@ def cancel_booking(booking_id):
         payment_id = car_booking.payment_id
 
     # Вернуть деньги
-    api_call_result = make_authorized_request(
-        CLIENT_ID, JWT_SECRET,
-        "POST",
-        f"http://{PAYMENT_SERVICE_URL}/payment/{payment_id}/reverse",
-        headers=flask_request.headers
-    )
-    if not api_call_result.ok:
-        return {"error": "bad api request", "details": api_call_result.text}, 500
+    if not MINIMAL_MODE:
+        api_call_result = make_authorized_request(
+            CLIENT_ID, JWT_SECRET,
+            "POST",
+            f"http://{PAYMENT_SERVICE_URL}/payment/{payment_id}/reverse",
+            headers=flask_request.headers
+        )
+        if not api_call_result.ok:
+            return {"error": "bad api request", "details": api_call_result.text}, 500
 
     # Удалить в расписании машины доступность
     api_call_result = make_authorized_request(

@@ -16,9 +16,11 @@ CLIENT_ID = "office_service"
 JWT_SECRET = auth.KNOWN_CLIENTS["office_service"]
 current_token = None
 
-CAR_SERVICE_URL = "localhost:7774"
+CAR_SERVICE_URL = os.environ.get("CAR_SERVICE_URL", "localhost:7774")
 MINIMAL_MODE = int(os.environ.get("MINIMAL_MODE", 0))
 
+print("MINIMAL_MODE:", MINIMAL_MODE)
+print("CAR_SERVICE_URL:", CAR_SERVICE_URL)
 
 class RentOffice(database.Base):
     __tablename__ = 'rent_office'

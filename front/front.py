@@ -14,8 +14,11 @@ app = Flask(__name__, template_folder='template')
 app.url_map.strict_slashes = False
 cors = CORS(app, support_credentials=True)
 
-SESSION_URL = "localhost:7771"
-GATEWAY_URL = "localhost:7779"
+SESSION_URL = os.environ.get("SESSION_URL", "localhost:7771")
+GATEWAY_URL = os.environ.get("GATEWAY_URL", "localhost:7779")
+
+print("SESSION_URL:", SESSION_URL)
+print("GATEWAY_URL:", GATEWAY_URL)
 
 context = {
     "sign_in_endpoint": f"http://{SESSION_URL}/auth",
