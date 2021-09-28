@@ -112,7 +112,8 @@ def car_page(car_uuid):
 @app.route('/offices', methods=["GET"])
 def office_list_page():
     response = request("GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers)
-
+    with open("test_log.log", "w") as f:
+        f.write(str(response.status_code) + " " + str(response.text))
     if not response.ok:
         if response.status_code == 401:
             return redirect("/auth")
