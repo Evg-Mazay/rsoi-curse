@@ -23,12 +23,13 @@ jobs:
       #    delayRequest: 50
       #    reporters: cli
     deploy:
-      name: DeployFront
+      name: Deploy
       runs-on: ubuntu-latest
       steps:
-        - name: DeployFront
         - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6
+
+        - name: DeployFront
+          uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-front"
@@ -40,8 +41,7 @@ jobs:
 
 
         - name: DeployGateway
-        - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6
+          uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-gateway"
@@ -53,8 +53,7 @@ jobs:
 
 
         - name: DeploySession
-        - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6
+          uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-session"
@@ -65,8 +64,7 @@ jobs:
 
 
         - name: DeployOffice
-        - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6
+          uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-office"
@@ -77,8 +75,7 @@ jobs:
 
 
         - name: DeployBooking
-        - uses: actions/checkout@v2
-        - uses: akhileshns/heroku-deploy@v3.4.6
+          uses: akhileshns/heroku-deploy@v3.4.6
           with:
             heroku_api_key: ${{secrets.HEROKU_API_KEY}}
             heroku_app_name: "curse-booking"
