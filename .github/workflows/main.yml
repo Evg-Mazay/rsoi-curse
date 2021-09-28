@@ -34,6 +34,12 @@ jobs:
             heroku_email: "evgenij997@yandex.ru"
             appdir: "front"
 
+        - name: Sleep for 10s
+          uses: juliangruber/sleep-action@v1
+          with:
+            time: 10s
+
+
     deploy_gateway:
       name: DeployGateway
       runs-on: ubuntu-latest
@@ -45,6 +51,12 @@ jobs:
             heroku_app_name: "curse-gateway"
             heroku_email: "evgenij997@yandex.ru"
             appdir: "gateway"
+
+        - name: Sleep for 10s
+          uses: juliangruber/sleep-action@v1
+          with:
+            time: 10s
+
 
     deploy_session:
       name: DeploySession
@@ -60,6 +72,12 @@ jobs:
           env:
             HD_MINIMAL_MODE: 1
 
+        - name: Sleep for 10s
+          uses: juliangruber/sleep-action@v1
+          with:
+            time: 10s
+
+
     deploy_office:
       name: DeployOffice
       runs-on: ubuntu-latest
@@ -73,3 +91,8 @@ jobs:
             appdir: "office"
           env:
             HD_MINIMAL_MODE: 1
+
+        - name: Sleep for 10s
+          uses: juliangruber/sleep-action@v1
+          with:
+            time: 10s
