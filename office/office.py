@@ -17,6 +17,7 @@ JWT_SECRET = auth.KNOWN_CLIENTS["office_service"]
 current_token = None
 
 CAR_SERVICE_URL = "localhost:7774"
+MINIMAL_MODE = int(os.environ.get("MINIMAL_MODE", 0))
 
 
 class RentOffice(database.Base):
@@ -140,13 +141,17 @@ def get_car_availability_in_office(office_id, car_uuid):
 @auth.requires_auth(JWT_SECRET)
 def get_car_availability(car_uuid):
     car_info = None
-    car_info_response = auth.authorized_request(
-        CLIENT_ID, JWT_SECRET,
-        "GET", f"http://{CAR_SERVICE_URL}/cars/{car_uuid}",
-        headers=flask_request.headers,
-    )
-    if car_info_response.ok:
-        car_info = car_info_response.json()
+    try:
+        car_info_response = auth.authorized_request(
+            CLIENT_ID, JWT_SECRET,
+            "GET", f"http://{CAR_SERVICE_URL}/cars/{car_uuid}",
+            headers=flask_request.headers,
+        )
+    except RequestException:
+        pass
+    else:
+        if car_info_response.ok:
+            car_info = car_info_response.json()
 
     with database.Session() as s:
         car_availabilities = (
@@ -182,14 +187,17 @@ def add_car_to_office(office_id, car_uuid):
     with database.Session() as s:
         if not list(s.query(RentOffice).filter(RentOffice.id == office_id).all()):
             return {"error": "несуществующий office_id"}, 400
-        check_car_response = auth.authorized_request(
-            CLIENT_ID, JWT_SECRET,
-            "GET",
-            f"http://{CAR_SERVICE_URL}/cars",
-            headers=flask_request.headers
-        )
-        if car_uuid not in [c["uuid"] for c in check_car_response.json()]:
-            return {"error": "несуществующий car_uuid"}, 400
+
+        if not MINIMAL_MODE:
+            check_car_response = auth.authorized_request(
+                CLIENT_ID, JWT_SECRET,
+                "GET",
+                f"http://{CAR_SERVICE_URL}/cars",
+                headers=flask_request.headers
+            )
+            if car_uuid not in [c["uuid"] for c in check_car_response.json()]:
+                return {"error": "несуществующий car_uuid"}, 400
+
         s.add(AvailableCar(
             office_id=office_id,
             car_uuid=car_uuid,
