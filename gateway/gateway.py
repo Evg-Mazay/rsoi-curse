@@ -17,13 +17,14 @@ JWT_SECRET = "gateway_12345"
 USER_JWT_SECRET = "user_jwt_secret"
 current_token = {}
 
-
+FRONT_URL = os.environ.get("FRONT_URL", "localhost:7770")
 CAR_SERVICE_URL = os.environ.get("CAR_SERVICE_URL", "localhost:7774")
 OFFICE_SERVICE_URL = os.environ.get("OFFICE_SERVICE_URL", "localhost:7775")
 PAYMENT_SERVICE_URL = os.environ.get("PAYMENT_SERVICE_URL", "localhost:7776")
 BOOKING_SERVICE_URL = os.environ.get("BOOKING_SERVICE_URL", "localhost:7777")
 STATISTICS_SERVICE_URL = os.environ.get("STATISTICS_SERVICE_URL", "localhost:7778")
 
+print("FRONT_URL:", FRONT_URL)
 print("CAR_SERVICE_URL:", CAR_SERVICE_URL)
 print("OFFICE_SERVICE_URL:", OFFICE_SERVICE_URL)
 print("PAYMENT_SERVICE_URL:", PAYMENT_SERVICE_URL)
@@ -76,7 +77,7 @@ def verify_token_from_cookie():
 @app.after_request
 def add_cors(response):
     header = response.headers
-    header['Access-Control-Allow-Origin'] = 'http://localhost:7770'
+    header['Access-Control-Allow-Origin'] = f'http://{FRONT_URL}'
     header['Access-Control-Allow-Headers'] = 'Origin, Content-Type'
     header['Access-Control-Allow-Credentials'] = 'true'
     header['Access-Control-Allow-Methods'] = 'HEAD, GET, POST, DELETE, PUT, PATCH'

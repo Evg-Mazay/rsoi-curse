@@ -38,7 +38,6 @@ jobs:
           env:
             HD_MINIMAL_MODE: 1
 
-
         - name: DeployBooking
           uses: akhileshns/heroku-deploy@v3.4.6
           with:
@@ -52,37 +51,8 @@ jobs:
 
 
 
-    deploy_session_and_gateway:
-      name: DeploySessionAndGateway
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-
-        - name: DeployGateway
-          uses: akhileshns/heroku-deploy@v3.4.6
-          with:
-            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-            heroku_app_name: "curse-gateway"
-            heroku_email: "evgenij997@yandex.ru"
-            appdir: "gateway"
-          env:
-            HD_OFFICE_SERVICE_URL: "curse-office.herokuapp.com"
-            HD_BOOKING_SERVICE_URL: "curse-booking.herokuapp.com"
-
-
-        - name: DeploySession
-          uses: akhileshns/heroku-deploy@v3.4.6
-          with:
-            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-            heroku_app_name: "curse-session"
-            heroku_email: "evgenij997@yandex.ru"
-            appdir: "session"
-          env:
-            HD_MINIMAL_MODE: 1
-
-
-    deploy_front:
-      name: DeployFront
+    deploy_session_gateway_front:
+      name: DeploySessionGatewayFront
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
@@ -97,4 +67,28 @@ jobs:
           env:
             HD_SESSION_URL: "curse-session.herokuapp.com"
             HD_GATEWAY_URL: "curse-gateway.herokuapp.com"
+
+        - name: DeployGateway
+          uses: akhileshns/heroku-deploy@v3.4.6
+          with:
+            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+            heroku_app_name: "curse-gateway"
+            heroku_email: "evgenij997@yandex.ru"
+            appdir: "gateway"
+          env:
+            HD_OFFICE_SERVICE_URL: "curse-office.herokuapp.com"
+            HD_BOOKING_SERVICE_URL: "curse-booking.herokuapp.com"
+            HD_FRONT_URL: "curse-front.herokuapp.com"
+
+        - name: DeploySession
+          uses: akhileshns/heroku-deploy@v3.4.6
+          with:
+            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+            heroku_app_name: "curse-session"
+            heroku_email: "evgenij997@yandex.ru"
+            appdir: "session"
+          env:
+            HD_MINIMAL_MODE: 1
+            HD_FRONT_URL: "curse-front.herokuapp.com"
+
 

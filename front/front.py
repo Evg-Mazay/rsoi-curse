@@ -36,6 +36,13 @@ def context_with_user():
     }
 
 
+@app.before_request
+def before_request():
+    if flask_request.is_secure:
+        url = flask_request.url.replace('https://', 'http://', 1)
+        return redirect(url)
+
+
 @app.after_request
 def add_cors(response):
     header = response.headers

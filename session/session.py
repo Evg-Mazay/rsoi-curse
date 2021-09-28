@@ -22,6 +22,10 @@ JWT_SECRET = "user_jwt_secret"
 TOKEN_EXPIRE = 60 * 60 * 1
 
 
+FRONT_URL = os.environ.get("FRONT_URL", "localhost:7770")
+print("FRONT_URL:", FRONT_URL)
+
+
 class User(database.Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
@@ -33,7 +37,7 @@ class User(database.Base):
 @app.after_request
 def add_cors(response):
     header = response.headers
-    header['Access-Control-Allow-Origin'] = 'http://localhost:7770'
+    header['Access-Control-Allow-Origin'] = f'http://{FRONT_URL}'
     header['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
     header['Access-Control-Allow-Credentials'] = 'true'
     return response
