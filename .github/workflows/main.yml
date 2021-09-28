@@ -50,23 +50,11 @@ jobs:
             HD_MINIMAL_MODE: 1
 
 
-
-    deploy_session_gateway_front:
-      name: DeploySessionGatewayFront
+    deploy_session_and_gateway:
+      name: DeploySessionAndGateway
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
-
-        - name: DeployFront
-          uses: akhileshns/heroku-deploy@v3.4.6
-          with:
-            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-            heroku_app_name: "curse-front"
-            heroku_email: "evgenij997@yandex.ru"
-            appdir: "front"
-          env:
-            HD_SESSION_URL: "curse-session.herokuapp.com"
-            HD_GATEWAY_URL: "curse-gateway.herokuapp.com"
 
         - name: DeployGateway
           uses: akhileshns/heroku-deploy@v3.4.6
@@ -92,3 +80,19 @@ jobs:
             HD_FRONT_URL: "curse-front.herokuapp.com"
 
 
+    deploy_front:
+      name: DeployFront
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: DeployFront
+          uses: akhileshns/heroku-deploy@v3.4.6
+          with:
+            heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+            heroku_app_name: "curse-front"
+            heroku_email: "evgenij997@yandex.ru"
+            appdir: "front"
+          env:
+            HD_SESSION_URL: "curse-session.herokuapp.com"
+            HD_GATEWAY_URL: "curse-gateway.herokuapp.com"

@@ -114,6 +114,7 @@ def office_list_page():
     print("[HEADERS]:", flask_request.headers)
     response = request("GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers)
     print("[RESPONSE]:", response.status_code, response.text)
+    print("[REQUESTED]:", f"http://{GATEWAY_URL}/offices", flask_request.headers)
 
     if not response.ok:
         if response.status_code == 401:
