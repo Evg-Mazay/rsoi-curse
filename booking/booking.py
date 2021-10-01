@@ -55,10 +55,14 @@ def make_authorized_request(*args, **kwargs):
         def __init__(self, e):
             self.text = e
 
+        def __str__(self):
+            return f"FailedResponseMock({self.status_code}, {self.text})"
+
     try:
         return auth.authorized_request(*args, **kwargs)
     except RequestException as e:
         return FailedResponseMock(e)
+
 
 
 @app.route('/token', methods=["POST"])
