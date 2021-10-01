@@ -221,11 +221,10 @@ def delete_car_from_office(office_id, car_uuid):
             s.query(AvailableCar)
             .filter(AvailableCar.office_id == office_id)
             .filter(AvailableCar.car_uuid == car_uuid)
-            .all()
+            .delete()
         )
         if not car:
             return {"error": "car not found"}, 404
-        s.delete(car)
     return {}, 201
 
 
@@ -233,15 +232,22 @@ def delete_car_from_office(office_id, car_uuid):
 @auth.check_for_admin
 @auth.requires_auth(JWT_SECRET)
 def delete_car_completely(car_uuid):
+    del_car_response = auth.authorized_request(
+        CLIENT_ID, JWT_SECRET,
+        "DELETE",
+        f"http://{CAR_SERVICE_URL}/cars/{car_uuid}",
+        headers=flask_request.headers
+    )
+    if not del_car_response.ok:
+        return {"error": "несуществующий car_uuid"}, 404
     with database.Session() as s:
         car = (
             s.query(AvailableCar)
             .filter(AvailableCar.car_uuid == car_uuid)
-            .all()
+            .delete()
         )
         if not car:
             return {"error": "car not found"}, 404
-        s.delete(car)
     return {}, 201
 
 
@@ -271,6 +277,8 @@ def book(car_uuid):
             return {"error": f"Эта машина освободится "
                              f"только в {last_availability.available_from} "
                              f"в офисе {last_availability.office_id}"}, 400
+        if start_time == end_time:
+            return {"error": f"Минимальное время бронирования - 2 дня"}, 400
         if start_time < last_availability.available_from or end_time <= start_time:
             return {"error": f"ошибочное время бронирования, "
                              f"машина доступна с {last_availability.available_from}"}, 400

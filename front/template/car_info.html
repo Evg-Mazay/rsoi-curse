@@ -2,20 +2,21 @@
 
 {% block content %}
 
+{% if not error %}
+  <script type="text/javascript">
+  $( document ).ready(function(){
+    $( "#purchase_id" ).click(function(){
+      document.location.href = "/book" +
+      "?office_id=" + {{ car_info.last_available.office_id }} +
+      "&car_uuid=" + document.location.pathname.split("/")[2]
+    });
 
-<script type="text/javascript">
-$( document ).ready(function(){
-  $( "#purchase_id" ).click(function(){
-    document.location.href = "/book" +
-    "?office_id=" + {{ car_info.last_available.office_id }} +
-    "&car_uuid=" + document.location.pathname.split("/")[2]
+    $( "#delete_car" ).click(function(){
+      delete_car_completely(document.location.pathname.split("/")[2]);
+    });
   });
-
-  $( "#delete_car" ).click(function(){
-    delete_car_completely(document.location.pathname.split("/")[2]);
-  });
-});
-</script>
+  </script>
+{% endif %}
 
 <h5>
   {% if car_info.car %}
@@ -42,19 +43,24 @@ $( document ).ready(function(){
   Доступность:
 </h4>
 
-<ul class="list-group">
-  <li class="list-group-item active">
-    Офис {{ car_info.last_available.office_id }}:
-    доступна с {{ car_info.last_available.from }}
-    <button id="purchase_id" type="button" class="btn btn-warning">Заказать</button>
-  </li>
-{% for car in car_info.offices %}
-  <li class="list-group-item disabled">
-    Офис {{ car.office_id }}:
-    была доступна с {{ car.from }} до {{ car.to }}
-  </li>
-{% endfor %}
-</ul>
+{% if not error %}
+  <ul class="list-group">
+    <li class="list-group-item active">
+      Офис {{ car_info.last_available.office_id }}:
+      доступна с <span class="timeconv">{{ car_info.last_available.from }}</span>
+      <button id="purchase_id" type="button" class="btn btn-warning">Заказать</button>
+    </li>
+  {% for car in car_info.offices %}
+    <li class="list-group-item disabled">
+      Офис {{ car.office_id }}:
+      была доступна с <span class="timeconv">{{ car.from }}</span>
+      до <span class="timeconv">{{ car.to }}</span>
+    </li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <h5 class="text-danger">Машина недоступна</h5>
+{% endif %}
 
 
 

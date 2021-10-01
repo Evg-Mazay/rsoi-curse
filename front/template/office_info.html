@@ -39,7 +39,7 @@ $( document ).ready(function(){
       {{ car.car_uuid }}
     {% endif %}
     :
-    доступна с {{ car.from }}
+    доступна с <span class="timeconv">{{ car.from }}</span>
     <button value="{{ car.car_uuid }}" type="button" class="btn btn-warning purchase">Заказать</button>
   </li>
 {% endfor %}
@@ -53,7 +53,8 @@ $( document ).ready(function(){
       {{ car.car_uuid }}
     {% endif %}
     :
-    была доступна с {{ car.from }} до {{ car.to }}
+    была доступна с <span class="timeconv">{{ car.from }}</span>
+    до <span class="timeconv">{{ car.to }}</span>
   </li>
 {% endfor %}
 </ul>

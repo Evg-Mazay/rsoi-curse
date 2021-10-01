@@ -100,8 +100,12 @@ def car_page(car_uuid):
         return render_template(
             "car_info.html",
             **context_with_user(),
-            car_info={"car": f"Ошибка: {response.status_code}", "last_available": [], "offices": []}
+            error=True,
+            error_text=f"Ошибка: {response.status_code}",
+            car_info={},
         ), 200
+
+    car_info = response.json()
     return render_template(
         "car_info.html",
         **context_with_user(),

@@ -24,7 +24,8 @@ $( document ).ready(function(){
   {% for book in book_info.active %}
     <li class="list-group-item">
       <b>Машина:</b>  {{ book.car_uuid }} <br>
-      <b>С</b> {{ book.booking_start }} <b>до</b> {{ book.booking_end }} <br>
+      <b>С</b> <span class="timeconv">{{ book.booking_start }}</span>
+      <b>до</b> <span class="timeconv">{{ book.booking_end }}</span> <br>
       <b>офис начала:</b> {{ book.start_office }} <b>офис сдачи:</b> {{ book.end_office }} <br>
       <button type="button" class="btn btn-danger" value="{{ book.id }}">Отменить заказ</button>
       <button type="button" class="btn btn-warning" value="{{ book.id }}">Завершить заказ</button>
@@ -37,7 +38,8 @@ $( document ).ready(function(){
   {% for book in book_info.done %}
     <li class="list-group-item">
       <b>Машина:</b>  {{ book.car_uuid }} <br>
-      <b>С</b> {{ book.booking_start }} <b>до</b> {{ book.booking_end }} <br>
+      <b>С</b> <span class="timeconv">{{ book.booking_start }}</span>
+      <b>до</b> <span class="timeconv">{{ book.booking_end }}</span> <br>
       <b>офис начала:</b> {{ book.start_office }} <b>офис сдачи:</b> {{ book.end_office }} <br>
       <b>Статус:</b> {{ book.status }}
     </li>

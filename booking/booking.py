@@ -86,6 +86,8 @@ def new_booking():
     except Exception as e:
         return {"error": "bad body", "details": str(e)}, 400
 
+    print("BOOKING:", booking_start, "-", booking_end)
+
     # Сходить в payment_service и заплатить
     if not MINIMAL_MODE:
         api_call_result = make_authorized_request(
@@ -174,16 +176,16 @@ def cancel_booking(booking_id):
         if not api_call_result.ok:
             return {"error": "bad api request", "details": api_call_result.text}, 500
 
-    # Удалить в расписании машины доступность
-    api_call_result = make_authorized_request(
-        CLIENT_ID, JWT_SECRET,
-        "DELETE",
-        f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
-        json={"taken_from": taken_from, "start_time": start_time},
-        headers=flask_request.headers
-    )
-    if not api_call_result.ok:
-        return {"error": "bad api request", "details": api_call_result.text}, 500
+    # # Удалить в расписании машины доступность
+    # api_call_result = make_authorized_request(
+    #     CLIENT_ID, JWT_SECRET,
+    #     "DELETE",
+    #     f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
+    #     json={"taken_from": taken_from, "start_time": start_time},
+    #     headers=flask_request.headers
+    # )
+    # if not api_call_result.ok:
+    #     return {"error": "bad api request", "details": api_call_result.text}, 500
 
     # Устанавливаем статус cancelled на этот букинг
     with database.Session() as s:
@@ -209,16 +211,16 @@ def end_booking(booking_id):
         start_time = car_booking.booking_start
 
 
-    # Удалить в расписании машины доступность
-    api_call_result = make_authorized_request(
-        CLIENT_ID, JWT_SECRET,
-        "DELETE",
-        f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
-        json={"taken_from": taken_from, "start_time": start_time},
-        headers=flask_request.headers
-    )
-    if not api_call_result.ok:
-        return {"error": "bad api request", "details": api_call_result.text}, 500
+    # # Удалить в расписании машины доступность
+    # api_call_result = make_authorized_request(
+    #     CLIENT_ID, JWT_SECRET,
+    #     "DELETE",
+    #     f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
+    #     json={"taken_from": taken_from, "start_time": start_time},
+    #     headers=flask_request.headers
+    # )
+    # if not api_call_result.ok:
+    #     return {"error": "bad api request", "details": api_call_result.text}, 500
 
     # Устанавливаем статус FINISHED на этот букинг
     with database.Session() as s:

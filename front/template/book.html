@@ -9,18 +9,22 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
       rel="stylesheet">
 
+
 <script type="text/javascript">
 $( document ).ready(function(){
   $( "#make_order_id" ).click(function(){make_book(
     start_office_id.value,
     return_office_id.value,
     car_id.value,
-    from_id.value,
-    to_id.value,
+    Date.parse(from_id.value)/1000,
+    Date.parse(to_id.value)/1000,
     cc_id.value,
     sum_id.value,
   )});
   $('.input-daterange').datepicker({});
+  $('.input-daterange').on('changeDate', function(elem){
+     sum_id.value = Math.floor(Date.parse(to_id.value)/100000 - Date.parse(from_id.value)/100000);
+  });
 });
 </script>
 
@@ -58,14 +62,6 @@ $( document ).ready(function(){
 
 
 <div class="input-group mb-3">
-  <div class="input-daterange input-group" id="datepicker">
-    <input type="text" class="input-sm form-control" name="start" />
-    <span> to </span>
-    <input type="text" class="input-sm form-control" name="end" />
-  </div>
-</div>
-
-<div class="input-group mb-3">
   <div class="input-group-prepend">
     <label class="input-group-text" for="car_id">Машина</label>
   </div>
@@ -79,12 +75,23 @@ $( document ).ready(function(){
 </div>
 
 
+<!--<div class="input-group mb-3">-->
+<!--  <div class="input-group-prepend">-->
+<!--    <label class="input-group-text" for="from_id">Период</label>-->
+<!--  </div>-->
+<!--  <input type="text" class="form-control" id="from_id" placeholder="с">-->
+<!--  <input type="text" class="form-control" id="to_id" placeholder="по">-->
+<!--</div>-->
+
 <div class="input-group mb-3">
   <div class="input-group-prepend">
     <label class="input-group-text" for="from_id">Период</label>
   </div>
-  <input type="text" class="form-control" id="from_id" placeholder="с">
-  <input type="text" class="form-control" id="to_id" placeholder="по">
+  <div class="input-daterange input-group" id="datepicker">
+    <input type="text" class="input-sm form-control" id="from_id" placeholder="с" name="start" />
+    <span> to </span>
+    <input type="text" class="input-sm form-control" id="to_id" placeholder="по" name="end" />
+  </div>
 </div>
 
 
@@ -93,7 +100,7 @@ $( document ).ready(function(){
     <label class="input-group-text" for="cc_id">Платежные данные</label>
   </div>
   <input type="text" class="form-control" id="cc_id" placeholder="Номер карты">
-  <input type="text" class="form-control" id="sum_id" placeholder="Сумма">
+  <input disabled type="text" class="form-control" id="sum_id" placeholder="Сумма">
 </div>
 
 
