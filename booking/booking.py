@@ -120,6 +120,7 @@ def new_booking():
         headers=flask_request.headers
     )
     if not api_call_result.ok:
+        print("NOT OK!!!!", str(api_call_result))
         return {"error": "bad api request", "details": api_call_result.text}, 500
 
     print("creating_object")
