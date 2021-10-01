@@ -56,12 +56,12 @@ def make_authorized_request(*args, **kwargs):
             self.text = e
 
         def __str__(self):
-            return f"FailedResponseMock({self.status_code}, {self.text})"
+            return f"FailedResponseMock({self.text})"
 
-    try:
-        return auth.authorized_request(*args, **kwargs)
-    except RequestException as e:
-        return FailedResponseMock(e)
+    # try:
+    return auth.authorized_request(*args, **kwargs)
+    # except RequestException as e:
+    #     return FailedResponseMock(e)
 
 
 
