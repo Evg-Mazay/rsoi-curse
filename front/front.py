@@ -143,6 +143,7 @@ def office_page(office_id):
     response = request(
         "GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars", headers=flask_request.headers
     )
+    print("GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars")
 
     if not response.ok:
         if response.status_code == 401:
