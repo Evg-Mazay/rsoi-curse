@@ -18,6 +18,7 @@ import auth
 
 # Экземпляр приложения
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 CLIENT_ID = "booking_service"
 JWT_SECRET = auth.KNOWN_CLIENTS["booking_service"]
 
@@ -75,7 +76,7 @@ def get_token():
 def new_booking():
     try:
         car_uuid = flask_request.json["car_uuid"]
-        user_id = flask_request.json["user_id"]
+        user_id = flask_request.headers["user_id"]
         cc_number = flask_request.json["payment_data"]["cc_number"]
         price = flask_request.json["payment_data"]["price"]
         booking_start = flask_request.json["booking_start"]

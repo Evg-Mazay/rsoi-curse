@@ -11,6 +11,7 @@ import auth
 
 # Экземпляр приложения
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 JWT_SECRET = auth.KNOWN_CLIENTS["payment_service"]
 
 

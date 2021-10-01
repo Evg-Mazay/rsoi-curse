@@ -12,6 +12,7 @@ from sqlalchemy import Column, Integer, Text
 # Экземпляр приложения
 app = Flask(__name__, template_folder='template')
 app.url_map.strict_slashes = False
+app.config['JSON_AS_ASCII'] = False
 cors = CORS(app, support_credentials=True)
 
 SESSION_URL = os.environ.get("SESSION_URL", "localhost:7771")
@@ -248,9 +249,10 @@ def stats():
             error="stats service unavailable: " + str(e),
         ), 200
 
+    office_stats = stats_by_offices_response.json()
     car_stats = stats_by_uuids_response.json()
 
-    message = None
+    message = ""
     car_service_response = request(
         "GET", f"http://{GATEWAY_URL}/cars", headers=flask_request.headers
     )
@@ -264,11 +266,21 @@ def stats():
             res[models[uuid]] += count
         car_stats = res
 
+
+    office_service_response = request(
+        "GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers
+    )
+    if not office_service_response.ok:
+        message += "\nНедоступен сервис офисов, вместо расположений офисов будут отображены их id"
+    else:
+        offices = {o["id"]: o["location"] for o in office_service_response.json()}
+        office_stats = {offices[int(k)]: v for k, v in office_stats.items() if offices.get(int(k))}
+
     return render_template(
         "stats.html",
         **context_with_user(),
         message=message,
-        office_stats=stats_by_offices_response.json(),
+        office_stats=office_stats,
         car_stats=car_stats,
     ), 200
 

@@ -12,6 +12,7 @@ import auth
 
 # Экземпляр приложения
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 CLIENT_ID = "office_service"
 JWT_SECRET = auth.KNOWN_CLIENTS["office_service"]
 current_token = None
@@ -83,7 +84,9 @@ def get_cars_list(office_id):
             .all()
         )
         if not car_availabilities:
-            return [], 200
+            return {"office_location": office.location,
+                    "available_cars": [],
+                    "unavailable_cars": []}, 200
 
         result = {}
         result["office_location"] = office.location

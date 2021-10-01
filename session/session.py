@@ -16,6 +16,7 @@ import database
 
 # Экземпляр приложения
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 cors = CORS(app, support_credentials=True)
 
 JWT_SECRET = "user_jwt_secret"

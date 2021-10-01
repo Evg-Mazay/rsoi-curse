@@ -10,6 +10,7 @@ from flask_cors import CORS
 
 # Экземпляр приложения
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 CLIENT_ID = "gateway_service"
@@ -66,7 +67,6 @@ class RoleError(Exception):
 
 
 def verify_token_from_cookie():
-    print("headers:", flask_request.headers)
     auth_header = flask_request.cookies.get("token")
     print("cookies:", flask_request.cookies)
     if auth_header:
