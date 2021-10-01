@@ -111,6 +111,12 @@ def new_booking():
 
     print("adding nedostupnost")
     print(len(flask_request.headers))
+    print("PUT",  f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}", {
+            "start_time": booking_start,
+            "end_time": booking_end,
+            "taken_from": start_office,
+            "taken_to": end_office,
+        })
 
     # Добавить в расписание машины недоступность
     api_call_result = make_authorized_request(
