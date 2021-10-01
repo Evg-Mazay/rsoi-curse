@@ -116,10 +116,8 @@ def car_page(car_uuid):
 
 @app.route('/offices', methods=["GET"])
 def office_list_page():
-    print("[HEADERS]:", flask_request.headers)
     response = request("GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers)
-    print("[RESPONSE]:", response.status_code, response.text)
-    print("[REQUESTED]:", f"http://{GATEWAY_URL}/offices", flask_request.headers)
+    print("GET", f"http://{GATEWAY_URL}/offices")
 
     if not response.ok:
         if response.status_code == 401:
@@ -143,7 +141,6 @@ def office_page(office_id):
     response = request(
         "GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars", headers=flask_request.headers
     )
-    print("GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars")
 
     if not response.ok:
         if response.status_code == 401:
@@ -190,11 +187,6 @@ def book_page():
             if office["id"] == office_id:
                 office_name = office["location"]
 
-
-    print(car_response.status_code, car_response.text)
-    print(office_response.status_code, office_response.text)
-
-    print(office_name, car_name)
 
     return render_template(
         "book.html",
