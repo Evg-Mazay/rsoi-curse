@@ -105,6 +105,9 @@ def new_booking():
     else:
         payment_id = 0
 
+    print("adding nedostupnost")
+    print(len(flask_request.headers))
+
     # Добавить в расписание машины недоступность
     api_call_result = make_authorized_request(
         CLIENT_ID, JWT_SECRET,
@@ -118,6 +121,8 @@ def new_booking():
     )
     if not api_call_result.ok:
         return {"error": "bad api request", "details": api_call_result.text}, 500
+
+    print("creating_object")
 
     # Создать объект в базе
     with database.Session() as s:
