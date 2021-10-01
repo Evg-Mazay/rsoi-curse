@@ -50,8 +50,8 @@ jobs:
             HD_MINIMAL_MODE: 1
 
 
-    deploy_session_and_gateway:
-      name: DeploySessionAndGateway
+    deploy_session_gateway_front:
+      name: DeploySessionGatewayFront
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
@@ -78,13 +78,6 @@ jobs:
           env:
             HD_MINIMAL_MODE: 1
             HD_FRONT_URL: "curse-front.herokuapp.com"
-
-
-    deploy_front:
-      name: DeployFront
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
 
         - name: DeployFront
           uses: akhileshns/heroku-deploy@v3.4.6
