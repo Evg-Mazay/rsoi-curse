@@ -117,8 +117,9 @@ def car_page(car_uuid):
 @app.route('/test', methods=["GET"])
 def test():
     print("REQUESTING")
-    response = request("GET", f"http://{GATEWAY_URL}/cars", headers=flask_request.headers)
+    response = request("GET", f"http://{GATEWAY_URL}/cars", headers=dict(flask_request.cookies))
     print("GOT", response.status_code)
+
 
 @app.route('/offices', methods=["GET"])
 def office_list_page():
