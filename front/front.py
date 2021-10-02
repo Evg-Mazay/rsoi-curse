@@ -29,6 +29,12 @@ context = {
     "offices_endpoint": f"http://{GATEWAY_URL}/offices",
 }
 
+
+def strip_headers(headers):
+    allowed_headers = ["Authorization", "Cookie", "Content-Type"]
+    return {k: v for k, v in headers.items() if k in allowed_headers}
+
+
 def context_with_user():
     return {
         **context,
@@ -70,7 +76,8 @@ def main_page():
 
 @app.route('/cars', methods=["GET"])
 def car_list_page():
-    car_list_response = request("GET", f"http://{GATEWAY_URL}/cars", headers=flask_request.headers)
+    car_list_response = request("GET", f"http://{GATEWAY_URL}/cars",
+                                headers=strip_headers(flask_request.headers))
 
     if not car_list_response.ok:
         if car_list_response.status_code == 401:
@@ -92,7 +99,8 @@ def car_list_page():
 
 @app.route('/cars/<string:car_uuid>', methods=["GET"])
 def car_page(car_uuid):
-    response = request("GET", f"http://{GATEWAY_URL}/offices/cars/{car_uuid}", headers=flask_request.headers)
+    response = request("GET", f"http://{GATEWAY_URL}/offices/cars/{car_uuid}",
+                       headers=strip_headers(flask_request.headers))
 
     if not response.ok:
         if response.status_code == 401:
@@ -117,13 +125,16 @@ def car_page(car_uuid):
 @app.route('/test', methods=["GET"])
 def test():
     print("REQUESTING")
-    response = request("GET", f"http://{GATEWAY_URL}/cars", headers=dict(flask_request.cookies))
+    response = request("GET", f"http://{GATEWAY_URL}/cars",
+                       headers=strip_headers(flask_request.headers))
     print("GOT", response.status_code)
+    return response.status_code, response.text
 
 
 @app.route('/offices', methods=["GET"])
 def office_list_page():
-    response = request("GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers)
+    response = request("GET", f"http://{GATEWAY_URL}/offices",
+                       headers=strip_headers(flask_request.headers))
     print("GET", f"http://{GATEWAY_URL}/offices")
 
     if not response.ok:
@@ -146,7 +157,8 @@ def office_list_page():
 @app.route('/offices/<int:office_id>', methods=["GET"])
 def office_page(office_id):
     response = request(
-        "GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars", headers=flask_request.headers
+        "GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars",
+        headers=strip_headers(flask_request.headers)
     )
 
     if not response.ok:
@@ -175,7 +187,8 @@ def book_page():
     car_name = None
     car_error = False
     car_response = request(
-        "GET", f"http://{GATEWAY_URL}/cars/{car_uuid}", headers=flask_request.headers
+        "GET", f"http://{GATEWAY_URL}/cars/{car_uuid}",
+        headers=strip_headers(flask_request.headers)
     )
     if not car_response.ok:
         car_error = True
@@ -185,7 +198,7 @@ def book_page():
     office_name = None
     office_error = False
     office_response = request(
-        "GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers
+        "GET", f"http://{GATEWAY_URL}/offices", headers=strip_headers(flask_request.headers)
     )
     if not office_response.ok:
         office_error = True
@@ -212,14 +225,16 @@ def book_page():
 def my_books():
     auth_header = {"Authorization": f"Bearer {flask_request.cookies.get('token')}"}
 
-    session_response = request("POST", f"http://{SESSION_URL}/verify", headers=auth_header)
+    session_response = request("POST", f"http://{SESSION_URL}/verify",
+                               headers=auth_header)
     if not session_response.ok:
         return redirect("/auth")
     user_id = session_response.json()['user_id']
 
 
     booking_response = request(
-        "GET", f"http://{GATEWAY_URL}/booking/user/{user_id}", headers=flask_request.headers
+        "GET", f"http://{GATEWAY_URL}/booking/user/{user_id}",
+        headers=strip_headers(flask_request.headers)
     )
     if not booking_response.ok:
         return render_template(
@@ -240,11 +255,13 @@ def my_books():
 def stats():
     try:
         stats_by_offices_response = request(
-            "GET", f"http://{GATEWAY_URL}/reports/booking-by-offices", headers=flask_request.headers
+            "GET", f"http://{GATEWAY_URL}/reports/booking-by-offices",
+            headers=strip_headers(flask_request.headers)
         )
 
         stats_by_uuids_response = request(
-            "GET", f"http://{GATEWAY_URL}/reports/booking-by-uuids", headers=flask_request.headers
+            "GET", f"http://{GATEWAY_URL}/reports/booking-by-uuids",
+            headers=strip_headers(flask_request.headers)
         )
     except RequestException as e:
         return render_template(
@@ -258,7 +275,7 @@ def stats():
 
     message = ""
     car_service_response = request(
-        "GET", f"http://{GATEWAY_URL}/cars", headers=flask_request.headers
+        "GET", f"http://{GATEWAY_URL}/cars", headers=strip_headers(flask_request.headers)
     )
     if not car_service_response.ok:
         message = "Недоступен сервис машин, поэтому вместо статистики по моделям" \
@@ -272,7 +289,7 @@ def stats():
 
 
     office_service_response = request(
-        "GET", f"http://{GATEWAY_URL}/offices", headers=flask_request.headers
+        "GET", f"http://{GATEWAY_URL}/offices", headers=strip_headers(flask_request.headers)
     )
     if not office_service_response.ok:
         message += "\nНедоступен сервис офисов, вместо расположений офисов будут отображены их id"
