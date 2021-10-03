@@ -11,7 +11,7 @@ $( document ).ready(function(){
     add_car(
       this.value,
       $("#car_uuid_" + this.value).val(),
-      dat.getTime() | 0
+      dat.getTime() / 1000 | 0
   );});
   $( "#add_office" ).click(function(){add_office(office_loc.value);});
 });
