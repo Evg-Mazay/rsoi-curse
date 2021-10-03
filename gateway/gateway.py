@@ -79,9 +79,9 @@ def verify_token_from_cookie():
 def add_cors(response):
     header = response.headers
     header['Access-Control-Allow-Origin'] = f'http://{FRONT_URL}'
-    header['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Authorization, Cookie'
+    header['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Authorization'
     header['Access-Control-Allow-Credentials'] = 'true'
-    header['Access-Control-Allow-Methods'] = 'HEAD, GET, POST, DELETE, PUT, PATCH'
+    header['Access-Control-Allow-Methods'] = 'HEAD, GET, POST, DELETE, PUT, PATCH, OPTIONS'
     return response
 
 
