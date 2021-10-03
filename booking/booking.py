@@ -49,7 +49,7 @@ class CarBooking(database.Base):
 
 
 def strip_headers(headers):
-    allowed_headers = ["Authorization", "Cookie", "Content-Type", "User-Id", "Is-Admin"]
+    allowed_headers = ["Authorization", "Cookie", "Content-Type", "User-Id", "Is-Admin", "Is-Service"]
     return {k: v for k, v in headers.items() if k in allowed_headers}
 
 
