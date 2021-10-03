@@ -1,6 +1,7 @@
 from functools import wraps
 from collections import defaultdict
 import os
+from datetime import datetime
 
 from requests import RequestException
 from flask import Flask
@@ -271,17 +272,22 @@ def book(car_uuid):
             .filter(AvailableCar.available_to == None)
             .one_or_none()
         )
+
+        avail_from_str = \
+            datetime.fromtimestamp(last_availability.available_from).strftime("%Y-%m-%d")
+
         if not last_availability:
             return {"error": "car is unavailable"}, 404
         if last_availability.office_id != taken_from:
             return {"error": f"Эта машина освободится "
-                             f"только в {last_availability.available_from} "
+                             f"только в {last_availability.available_from} ({avail_from_str}) "
                              f"в офисе {last_availability.office_id}"}, 400
         if start_time == end_time:
             return {"error": f"Минимальное время бронирования - 2 дня"}, 400
         if start_time < last_availability.available_from or end_time <= start_time:
             return {"error": f"ошибочное время бронирования, "
-                             f"машина доступна с {last_availability.available_from}"}, 400
+                             f"машина доступна с "
+                             f"{last_availability.available_from} ({avail_from_str})"}, 400
 
         # У последнего свободного слота ставим дату окончания доступности
         last_availability.available_to = start_time

@@ -22,11 +22,11 @@ print("SESSION_URL:", SESSION_URL)
 print("GATEWAY_URL:", GATEWAY_URL)
 
 context = {
-    "sign_in_endpoint": f"http://{SESSION_URL}/auth",
-    "register_endpoint": f"http://{SESSION_URL}/register",
-    "cars_list_endpoint": f"http://{GATEWAY_URL}/cars",
-    "book_endpoint": f"http://{GATEWAY_URL}/booking",
-    "offices_endpoint": f"http://{GATEWAY_URL}/offices",
+    "sign_in_endpoint": f"/proxy/auth",
+    "register_endpoint": f"/proxy/register",
+    "cars_list_endpoint": f"/proxy/cars",
+    "book_endpoint": f"/proxy/booking",
+    "offices_endpoint": f"/proxy/offices",
 }
 
 
@@ -122,13 +122,14 @@ def car_page(car_uuid):
 
 
 
-@app.route('/test', methods=["GET"])
-def test():
-    print("REQUESTING")
-    response = request("GET", f"http://{GATEWAY_URL}/cars",
-                       headers=strip_headers(flask_request.headers))
-    print("GOT", response.status_code)
-    return response.status_code, response.text
+@app.route('/proxy/<path:url>', methods=[
+    'OPTIONS', 'HEAD', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'
+])
+def gateway_proxy(url):
+    print("requested gateway proxy", url)
+    resp = request("GET", f"http://{GATEWAY_URL}/{url}",
+                   headers=strip_headers(flask_request.headers))
+    return resp.text, resp.status_code, resp.headers.items()
 
 
 @app.route('/offices', methods=["GET"])
