@@ -27,6 +27,15 @@
     });
     </script>
 
+    <script type="text/javascript">
+    $( document ).ready(function(){
+      $.ajax({type: 'GET', url: '{{ sign_in_endpoint }}'});
+      $.ajax({type: 'GET', url: '{{ cars_list_endpoint }}'});
+      $.ajax({type: 'GET', url: '{{ book_endpoint }}'});
+      $.ajax({type: 'GET', url: '{{ offices_endpoint }}'});
+    });
+    </script>
+
     <script>
       function timeConverter(UNIX_timestamp){
         var a = new Date(UNIX_timestamp * 1000);
