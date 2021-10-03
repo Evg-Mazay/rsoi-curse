@@ -126,6 +126,7 @@ def car_page(car_uuid):
     'OPTIONS', 'HEAD', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'
 ])
 def gateway_proxy(url):
+    print("headers:", strip_headers(flask_request.headers))
     resp = request(flask_request.method, f"https://{GATEWAY_URL}/{url}",
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()

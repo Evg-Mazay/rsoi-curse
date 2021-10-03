@@ -76,6 +76,8 @@ def requires_admin(f):
 
 @app.route("/auth", methods=["POST"])
 def get_token():
+    print("headers", request.headers)
+
     # auth_data = request.headers.get("Authorization")
     # if not auth_data:
     #     return {"error": "Authorization header missing"}, 400
