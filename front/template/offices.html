@@ -5,10 +5,13 @@
 
 <script type="text/javascript">
 $( document ).ready(function(){
-  $( ".add-car" ).click(function(){add_car(
-    this.value,
-    $("#car_uuid_" + this.value).val(),
-    Date.now() / 1000 | 0
+  $( ".add-car" ).click(function(){
+    d = new Date();
+    dat = new Date(a.getFullYear(), a.getMonth(), a.getDay());
+    add_car(
+      this.value,
+      $("#car_uuid_" + this.value).val(),
+      dat.getTime() | 0
   );});
   $( "#add_office" ).click(function(){add_office(office_loc.value);});
 });
