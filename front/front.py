@@ -280,11 +280,7 @@ def stats():
         if not stats_by_offices_response.ok:
             raise RequestException(f"status_code={stats_by_offices_response.status_code}")
     except RequestException as e:
-        return render_template(
-            "my_books.html",
-            **context_with_user(),
-            error="stats service unavailable: " + str(e),
-        ), 200
+        return "stats service unavailable: " + str(e), 200
 
     office_stats = stats_by_offices_response.json()
     car_stats = stats_by_uuids_response.json()
