@@ -39,6 +39,12 @@ class AvailableCar(database.Base):
     available_to = Column(Integer, nullable=True)
 
 
+def strip_headers(headers):
+    allowed_headers = ["Authorization", "Cookie", "Content-Type"]
+    return {k: v for k, v in headers.items() if k in allowed_headers}
+
+
+
 @app.route('/token', methods=["POST"])
 def get_token():
     if not flask_request.json:
@@ -107,7 +113,7 @@ def get_cars_list(office_id):
             cars_response = auth.authorized_request(
                 CLIENT_ID, JWT_SECRET,
                 "GET", f"http://{CAR_SERVICE_URL}/cars",
-                headers=flask_request.headers,
+                headers=strip_headers(flask_request.headers),
             )
         except RequestException:
             pass
@@ -151,7 +157,7 @@ def get_car_availability(car_uuid):
         car_info_response = auth.authorized_request(
             CLIENT_ID, JWT_SECRET,
             "GET", f"http://{CAR_SERVICE_URL}/cars/{car_uuid}",
-            headers=flask_request.headers,
+            headers=strip_headers(flask_request.headers),
         )
     except RequestException:
         pass
@@ -199,7 +205,7 @@ def add_car_to_office(office_id, car_uuid):
                 CLIENT_ID, JWT_SECRET,
                 "GET",
                 f"http://{CAR_SERVICE_URL}/cars",
-                headers=flask_request.headers
+                headers=strip_headers(flask_request.headers)
             )
             if car_uuid not in [c["uuid"] for c in check_car_response.json()]:
                 return {"error": "несуществующий car_uuid"}, 400
@@ -237,7 +243,7 @@ def delete_car_completely(car_uuid):
         CLIENT_ID, JWT_SECRET,
         "DELETE",
         f"http://{CAR_SERVICE_URL}/cars/{car_uuid}",
-        headers=flask_request.headers
+        headers=strip_headers(flask_request.headers)
     )
     if not del_car_response.ok:
         return {"error": "несуществующий car_uuid"}, 404

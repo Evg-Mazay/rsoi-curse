@@ -48,6 +48,12 @@ class CarBooking(database.Base):
     status = Column(Text, nullable=False)
 
 
+def strip_headers(headers):
+    allowed_headers = ["Authorization", "Cookie", "Content-Type"]
+    return {k: v for k, v in headers.items() if k in allowed_headers}
+
+
+
 def make_authorized_request(*args, **kwargs):
     class FailedResponseMock:
         ok = False
@@ -100,7 +106,7 @@ def new_booking():
                 "cc_number": cc_number,
                 "ammount": price
             },
-            headers=flask_request.headers
+            headers=strip_headers(flask_request.headers)
         )
         if not api_call_result.ok:
             return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -127,7 +133,7 @@ def new_booking():
             "taken_from": start_office,
             "taken_to": end_office,
         },
-        headers=flask_request.headers
+        headers=strip_headers(flask_request.headers)
     )
     if not api_call_result.ok:
         print("NOT OK!!!!", str(api_call_result))
@@ -159,7 +165,7 @@ def new_booking():
                 "car_uuid": car_uuid,
                 "office_id": start_office,
             },
-            headers=flask_request.headers
+            headers=strip_headers(flask_request.headers)
         )
         if not api_call_result.ok:
             print("ошибка при запросе сервиса статистики:", api_call_result.status_code, api_call_result.text)
@@ -187,7 +193,7 @@ def cancel_booking(booking_id):
             CLIENT_ID, JWT_SECRET,
             "POST",
             f"http://{PAYMENT_SERVICE_URL}/payment/{payment_id}/reverse",
-            headers=flask_request.headers
+            headers=strip_headers(flask_request.headers)
         )
         if not api_call_result.ok:
             return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -198,7 +204,7 @@ def cancel_booking(booking_id):
     #     "DELETE",
     #     f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
     #     json={"taken_from": taken_from, "start_time": start_time},
-    #     headers=flask_request.headers
+    #     headers=strip_headers(flask_request.headers)
     # )
     # if not api_call_result.ok:
     #     return {"error": "bad api request", "details": api_call_result.text}, 500
@@ -233,7 +239,7 @@ def end_booking(booking_id):
     #     "DELETE",
     #     f"http://{OFFICE_SERVICE_URL}/offices/cars/{car_uuid}",
     #     json={"taken_from": taken_from, "start_time": start_time},
-    #     headers=flask_request.headers
+    #     headers=strip_headers(flask_request.headers)
     # )
     # if not api_call_result.ok:
     #     return {"error": "bad api request", "details": api_call_result.text}, 500
