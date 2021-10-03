@@ -127,16 +127,15 @@ def car_page(car_uuid):
 ])
 def gateway_proxy(url):
     print("requested gateway proxy", url)
-    resp = request("GET", f"http://{GATEWAY_URL}/{url}",
+    resp = request("GET", f"https://{GATEWAY_URL}/{url}",
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
 
 
 @app.route('/offices', methods=["GET"])
 def office_list_page():
-    response = request("GET", f"http://{GATEWAY_URL}/offices",
+    response = request("GET", f"https://{GATEWAY_URL}/offices",
                        headers=strip_headers(flask_request.headers))
-    print("GET", f"http://{GATEWAY_URL}/offices")
 
     if not response.ok:
         if response.status_code == 401:
@@ -158,7 +157,7 @@ def office_list_page():
 @app.route('/offices/<int:office_id>', methods=["GET"])
 def office_page(office_id):
     response = request(
-        "GET", f"http://{GATEWAY_URL}/offices/{office_id}/cars",
+        "GET", f"https://{GATEWAY_URL}/offices/{office_id}/cars",
         headers=strip_headers(flask_request.headers)
     )
 
@@ -188,7 +187,7 @@ def book_page():
     car_name = None
     car_error = False
     car_response = request(
-        "GET", f"http://{GATEWAY_URL}/cars/{car_uuid}",
+        "GET", f"https://{GATEWAY_URL}/cars/{car_uuid}",
         headers=strip_headers(flask_request.headers)
     )
     if not car_response.ok:
@@ -199,7 +198,7 @@ def book_page():
     office_name = None
     office_error = False
     office_response = request(
-        "GET", f"http://{GATEWAY_URL}/offices", headers=strip_headers(flask_request.headers)
+        "GET", f"https://{GATEWAY_URL}/offices", headers=strip_headers(flask_request.headers)
     )
     if not office_response.ok:
         office_error = True
@@ -226,7 +225,7 @@ def book_page():
 def my_books():
     auth_header = {"Authorization": f"Bearer {flask_request.cookies.get('token')}"}
 
-    session_response = request("POST", f"http://{SESSION_URL}/verify",
+    session_response = request("POST", f"https://{SESSION_URL}/verify",
                                headers=auth_header)
     if not session_response.ok:
         return redirect("/auth")
@@ -256,12 +255,12 @@ def my_books():
 def stats():
     try:
         stats_by_offices_response = request(
-            "GET", f"http://{GATEWAY_URL}/reports/booking-by-offices",
+            "GET", f"https://{GATEWAY_URL}/reports/booking-by-offices",
             headers=strip_headers(flask_request.headers)
         )
 
         stats_by_uuids_response = request(
-            "GET", f"http://{GATEWAY_URL}/reports/booking-by-uuids",
+            "GET", f"https://{GATEWAY_URL}/reports/booking-by-uuids",
             headers=strip_headers(flask_request.headers)
         )
     except RequestException as e:
@@ -276,7 +275,7 @@ def stats():
 
     message = ""
     car_service_response = request(
-        "GET", f"http://{GATEWAY_URL}/cars", headers=strip_headers(flask_request.headers)
+        "GET", f"https://{GATEWAY_URL}/cars", headers=strip_headers(flask_request.headers)
     )
     if not car_service_response.ok:
         message = "Недоступен сервис машин, поэтому вместо статистики по моделям" \
@@ -290,7 +289,7 @@ def stats():
 
 
     office_service_response = request(
-        "GET", f"http://{GATEWAY_URL}/offices", headers=strip_headers(flask_request.headers)
+        "GET", f"https://{GATEWAY_URL}/offices", headers=strip_headers(flask_request.headers)
     )
     if not office_service_response.ok:
         message += "\nНедоступен сервис офисов, вместо расположений офисов будут отображены их id"
