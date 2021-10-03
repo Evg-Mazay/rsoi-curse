@@ -3,8 +3,8 @@ function error_function(jqXHR, exception){
     $( "#error_message_alert" ).show();
 }
 
-function success_function(jqXHR, exception){
-    $( "#success_message_alert" ).text("[" + jqXHR.status + "] " + jqXHR.responseText);
+function success_function(data){
+    $( "#success_message_alert" ).text(data);
     $( "#success_message_alert" ).show();
 }
 
