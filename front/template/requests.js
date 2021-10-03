@@ -55,7 +55,8 @@ function make_book(office_start, office_end, car_uuid, time_start, time_end, cc_
        type: 'POST',
        crossDomain: true,
        withCredentials: true,
-       dataType: 'json',
+       xhrFields: {withCredentials: true},
+//       dataType: 'json',
        data: JSON.stringify({
             "car_uuid": car_uuid,
             "user_id": 0,
