@@ -126,7 +126,6 @@ def car_page(car_uuid):
     'OPTIONS', 'HEAD', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'
 ])
 def gateway_proxy(url):
-    print("requested gateway proxy", url)
     resp = request("GET", f"https://{GATEWAY_URL}/{url}",
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
@@ -135,8 +134,7 @@ def gateway_proxy(url):
 @app.route('/session_proxy/<path:url>', methods=[
     'OPTIONS', 'HEAD', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'
 ])
-def gateway_proxy(url):
-    print("requested gateway proxy", url)
+def auth_proxy(url):
     resp = request("GET", f"https://{SESSION_URL}/{url}",
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
