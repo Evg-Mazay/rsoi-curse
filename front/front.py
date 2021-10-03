@@ -43,11 +43,11 @@ def context_with_user():
     }
 
 
-@app.before_request
-def before_request():
-    if flask_request.is_secure:
-        url = flask_request.url.replace('https://', 'http://', 1)
-        return redirect(url)
+# @app.before_request
+# def before_request():
+#     if flask_request.is_secure:
+#         url = flask_request.url.replace('https://', 'http://', 1)
+#         return redirect(url)
 
 
 @app.after_request
@@ -126,7 +126,7 @@ def car_page(car_uuid):
     'OPTIONS', 'HEAD', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'
 ])
 def gateway_proxy(url):
-    resp = request("GET", f"https://{GATEWAY_URL}/{url}",
+    resp = request(flask_request.method, f"https://{GATEWAY_URL}/{url}",
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
 
@@ -135,7 +135,7 @@ def gateway_proxy(url):
     'OPTIONS', 'HEAD', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'
 ])
 def auth_proxy(url):
-    resp = request("GET", f"https://{SESSION_URL}/{url}",
+    resp = request(flask_request.method, f"https://{SESSION_URL}/{url}",
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
 
