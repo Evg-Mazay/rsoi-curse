@@ -270,11 +270,15 @@ def stats():
             "GET", f"https://{GATEWAY_URL}/reports/booking-by-offices",
             headers=strip_headers(flask_request.headers)
         )
+        if not stats_by_offices_response.ok:
+            raise RequestException(f"status_code={stats_by_offices_response.status_code}")
 
         stats_by_uuids_response = request(
             "GET", f"https://{GATEWAY_URL}/reports/booking-by-uuids",
             headers=strip_headers(flask_request.headers)
         )
+        if not stats_by_offices_response.ok:
+            raise RequestException(f"status_code={stats_by_offices_response.status_code}")
     except RequestException as e:
         return render_template(
             "my_books.html",
