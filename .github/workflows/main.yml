@@ -7,7 +7,7 @@ on:
     branches:
       - master
 jobs:
-    deploy_booking_and_office:
+    deploy_all:
       name: DeployBookingAndOffice
       runs-on: ubuntu-latest
       steps:
@@ -33,13 +33,6 @@ jobs:
           env:
             HD_OFFICE_SERVICE_URL: "curse-office.herokuapp.com"
             HD_MINIMAL_MODE: 1
-
-
-    deploy_session_gateway_front:
-      name: DeploySessionGatewayFront
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
 
         - name: DeployGateway
           uses: akhileshns/heroku-deploy@v3.4.6
