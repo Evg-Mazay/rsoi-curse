@@ -133,9 +133,13 @@ def add_user():
     except Exception as e:
         return {"error": "bad body", "details": str(e)}, 400
 
-    with database.Session() as s:
-        user = User(login=login, role=role, password_hash=sha224(password.encode("utf-8")).hexdigest())
-        s.add(user)
+    try:
+        with database.Session() as s:
+            user = User(login=login, role=role,
+                        password_hash=sha224(password.encode("utf-8")).hexdigest())
+            s.add(user)
+    except Exception:
+        return {"error": "Ошибка регистрации пользователь уже существует"}, 500
     return {"message": "Пользователь зарегистрирован"}, 200
 
 
@@ -147,9 +151,13 @@ def register():
     except Exception as e:
         return {"error": "bad body", "details": str(e)}, 400
 
-    with database.Session() as s:
-        user = User(login=login, role="user", password_hash=sha224(password.encode("utf-8")).hexdigest())
-        s.add(user)
+    try:
+        with database.Session() as s:
+            user = User(login=login, role="user",
+                        password_hash=sha224(password.encode("utf-8")).hexdigest())
+            s.add(user)
+    except Exception:
+        return {"error": "Ошибка регистрации пользователь уже существует"}, 500
     return {"message": "Пользователь зарегистрирован"}, 200
 
 
