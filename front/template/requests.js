@@ -54,7 +54,7 @@ function make_book(office_start, office_end, car_uuid, time_start, time_end, cc_
     $.ajax({
        type: 'POST',
        crossDomain: true,
-       xhrFields: {withCredentials: true},
+       withCredentials: true,
        dataType: 'json',
        data: JSON.stringify({
             "car_uuid": car_uuid,
