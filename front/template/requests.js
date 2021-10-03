@@ -4,7 +4,7 @@ function error_function(jqXHR, exception){
 }
 
 function success_function(data){
-    $( "#success_message_alert" ).text(data);
+    $( "#success_message_alert" ).text(data.toString());
     $( "#success_message_alert" ).show();
 }
 
