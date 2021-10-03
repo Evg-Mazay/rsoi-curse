@@ -25,7 +25,10 @@ function sign_in(login, password){
 
 
 function sign_out(){
-
+    document.cookie = "token= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "user= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "is_admin= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+    document.location.href = "/";
 }
 
 

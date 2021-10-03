@@ -280,7 +280,7 @@ def book(car_uuid):
         )
 
         avail_from_str = \
-            datetime.fromtimestamp(last_availability.available_from).strftime("%Y-%m-%d")
+            datetime.fromtimestamp(last_availability.available_from).strftime("%m/%d/%Y")
 
         if not last_availability:
             return {"error": "car is unavailable"}, 404
