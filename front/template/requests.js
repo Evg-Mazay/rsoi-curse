@@ -46,7 +46,7 @@ function register(login, password){
        data: JSON.stringify({"login": login, "password": password}),
        url: '{{ register_endpoint }}',
        contentType: 'application/json',
-       success: success_function,
+       success: function(data){success_function("Пользователь успешно создан");},
        error: error_function
     })
 }
