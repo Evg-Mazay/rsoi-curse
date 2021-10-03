@@ -136,7 +136,7 @@ def add_user():
     with database.Session() as s:
         user = User(login=login, role=role, password_hash=sha224(password.encode("utf-8")).hexdigest())
         s.add(user)
-    return {}, 200
+    return {"message": "Пользователь зарегистрирован"}, 200
 
 
 @app.route("/register", methods=["POST"])
@@ -150,7 +150,7 @@ def register():
     with database.Session() as s:
         user = User(login=login, role="user", password_hash=sha224(password.encode("utf-8")).hexdigest())
         s.add(user)
-    return {}, 200
+    return {"message": "Пользователь зарегистрирован"}, 200
 
 
 if __name__ == '__main__':

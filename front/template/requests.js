@@ -3,6 +3,11 @@ function error_function(jqXHR, exception){
     $( "#error_message_alert" ).show();
 }
 
+function success_function(jqXHR, exception){
+    $( "#success_message_alert" ).text("[" + jqXHR.status + "] " + jqXHR.responseText);
+    $( "#success_message_alert" ).show();
+}
+
 function sign_in(login, password){
     $.ajax({
        type: 'POST',
@@ -41,13 +46,7 @@ function register(login, password){
        data: JSON.stringify({"login": login, "password": password}),
        url: '{{ register_endpoint }}',
        contentType: 'application/json',
-       success: function(jsondata){
-            console.log("Token obtained: " + jsondata["auth_token"]);
-            document.cookie = "token=" + jsondata["auth_token"];
-            document.cookie = "user=" + login;
-            document.cookie = "is_admin=" + 0;
-            document.location.href = "/"
-       },
+       success: success_function,
        error: error_function
     })
 }
