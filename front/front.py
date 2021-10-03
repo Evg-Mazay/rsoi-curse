@@ -128,6 +128,7 @@ def car_page(car_uuid):
 def gateway_proxy(url):
     print("headers:", strip_headers(flask_request.headers))
     resp = request(flask_request.method, f"http://{GATEWAY_URL}/{url}",
+                   json=flask_request.json,
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
 
@@ -138,6 +139,7 @@ def gateway_proxy(url):
 def auth_proxy(url):
     print("headers:", strip_headers(flask_request.headers))
     resp = request(flask_request.method, f"http://{SESSION_URL}/{url}",
+                   json=flask_request.json,
                    headers=strip_headers(flask_request.headers))
     return resp.text, resp.status_code, resp.headers.items()
 
